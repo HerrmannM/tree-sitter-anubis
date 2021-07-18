@@ -1,0 +1,225 @@
+================================================================================
+Term paragraph, private, no body
+================================================================================
+
+define A a.
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (par_end)
+    )
+)
+
+
+================================================================================
+Term paragraph, private, inline no body ('inline' is anonymous)
+================================================================================
+
+define inline A a.
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (par_end)
+    )
+)
+
+================================================================================
+Literals and binop  0 * 1.0 + 'a' + "string"
+================================================================================
+
+define A a = 0 * 1.0 + 'a' + "string".
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (binary_op
+            (term (binary_op
+                (term (lit_integer))
+                (star)
+                (term (lit_float))
+            ))
+            (plus)
+            (term (binary_op
+                (term (lit_char))
+                (plus)
+                (term (lit_string))
+            ))
+        ))
+        (par_end)
+))
+
+================================================================================
+Minus '-' (check associativity)
+================================================================================
+
+define A a = 1 - 2 - 3.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (binary_op
+            (term (binary_op
+                (term (lit_integer))
+                (minus)
+                (term (lit_integer))
+            ))
+            (minus)
+            (term (lit_integer))
+        ))
+        (par_end)
+))
+
+================================================================================
+Check unary
+================================================================================
+
+define A a = - 1 - + 2.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (binary_op
+            (term (unary_op (minus) (term (lit_integer)) ))
+            (minus)
+            (term (unary_op (plus) (term (lit_integer)) ))
+        ))
+        (par_end)
+))
+
+
+================================================================================
+Tuple
+================================================================================
+
+define A a = (a, (b, c), d).
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (tuple
+            (term (identifier))
+            (term (tuple
+                (term (identifier))
+                (term (identifier))
+            ))
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
+
+================================================================================
+Apply
+================================================================================
+
+define A a = a(b, (c, d)).
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (apply
+            (term (identifier))
+            (term (identifier))
+            (term (tuple (term (identifier)) (term (identifier))))
+        ))
+        (par_end)
+    )
+)
+
+
+================================================================================
+Lambda
+================================================================================
+
+define A->A id = (A a)|->a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
+        (identifier)
+        (term (lambda
+            (operand (type (ty_name)) (identifier))
+            (mapsto)
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
+
+================================================================================
+Lambda rec
+================================================================================
+
+define A->A id = (_ a)|-f->a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
+        (identifier)
+        (term (lambda
+            (operand (identifier))
+            (mapsto (identifier))
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
+
+================================================================================
+KW: delegate term, term.
+================================================================================
+
+define A a = delegate term, term.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (delegate
+            (term (identifier))
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
+
+================================================================================
+KW: delegate (term) term, term.
+================================================================================
+
+define A a = delegate (term) term, term.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (delegate
+            (term (identifier))
+            (term (identifier))
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
