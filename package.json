@@ -1,29 +1,45 @@
 {
-    "name": "tree-sitter-anubis",
-    "version": "0.0.1",
-    "description": "Anubis grammar for tree-sitter",
-    "main": "bindings/node",
-    "keywords": ["parser", "anubis"],
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Matthieu Herrmann",
-    "license": "MIT",
-    "dependencies": {
-        "nan": "^2.14.2"
-    },
-    "devDependencies": {
-        "tree-sitter-cli": "^0.20.0"
-    },
-    "tree-sitter": [
-        {
-            "scope": "source.anubis",
-            "file-types": [
-                "anubis"
-            ],
-            "highlights": [
-                "queries/highlights.scm"
-            ]
-        }
-    ]
+  "name": "tree-sitter-anubis",
+  "version": "0.0.1",
+  "description": "Anubis grammar for tree-sitter",
+  "main": "bindings/node",
+  "keywords": [
+    "parser",
+    "anubis"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "author": "Matthieu Herrmann",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.14.2"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.20.0"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.anubis",
+      "file-types": [
+        "anubis"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ]
+    }
+  ],
+  "gypfile": true,
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HerrmannM/tree-sitter-anubis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HerrmannM/tree-sitter-anubis/issues"
+  },
+  "homepage": "https://github.com/HerrmannM/tree-sitter-anubis#readme"
 }
