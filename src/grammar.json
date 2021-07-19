@@ -336,6 +336,14 @@
         "value": "+"
       }
     },
+    "plusplus": {
+      "type": "PREC_RIGHT",
+      "value": 15,
+      "content": {
+        "type": "STRING",
+        "value": "++"
+      }
+    },
     "minus": {
       "type": "PREC_LEFT",
       "value": 16,
@@ -840,11 +848,15 @@
         },
         {
           "type": "SYMBOL",
+          "name": "list"
+        },
+        {
+          "type": "SYMBOL",
           "name": "lambda"
         },
         {
           "type": "SYMBOL",
-          "name": "list"
+          "name": "cross_rec"
         },
         {
           "type": "SYMBOL",
@@ -1234,6 +1246,39 @@
                 "content": {
                   "type": "SYMBOL",
                   "name": "plus"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_RIGHT",
+          "value": 15,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "bop",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "plusplus"
                 }
               },
               {
@@ -1660,6 +1705,14 @@
           "content": {
             "type": "SYMBOL",
             "name": "plus"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "bop",
+          "content": {
+            "type": "SYMBOL",
+            "name": "plusplus"
           }
         },
         {
@@ -2375,6 +2428,19 @@
       }
     },
     "lambda": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_lambda_simple"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_lambda_rec"
+        }
+      ]
+    },
+    "_lambda_simple": {
       "type": "PREC_RIGHT",
       "value": 0,
       "content": {
@@ -2464,22 +2530,8 @@
             ]
           },
           {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "mapsto"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "mapstorec"
-                },
-                "named": true,
-                "value": "mapsto"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "mapsto"
           },
           {
             "type": "SYMBOL",
@@ -2487,6 +2539,218 @@
           }
         ]
       }
+    },
+    "_lambda_rec": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "STRING",
+                      "value": "("
+                    },
+                    "named": false,
+                    "value": "tok"
+                  },
+                  {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "operand"
+                          },
+                          {
+                            "type": "REPEAT",
+                            "content": {
+                              "type": "SEQ",
+                              "members": [
+                                {
+                                  "type": "ALIAS",
+                                  "content": {
+                                    "type": "STRING",
+                                    "value": ","
+                                  },
+                                  "named": false,
+                                  "value": "tok"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "operand"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "STRING",
+                                  "value": ","
+                                },
+                                "named": false,
+                                "value": "tok"
+                              },
+                              {
+                                "type": "BLANK"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "BLANK"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "STRING",
+                  "value": ")"
+                },
+                "named": false,
+                "value": "tok"
+              }
+            ]
+          },
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "mapstorec"
+            },
+            "named": true,
+            "value": "mapsto"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "term"
+          }
+        ]
+      }
+    },
+    "cross_rec": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "cross_recursive"
+          },
+          "named": false,
+          "value": "tok"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "{"
+                  },
+                  "named": false,
+                  "value": "tok"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "ALIAS",
+                          "content": {
+                            "type": "SYMBOL",
+                            "name": "_lambda_rec"
+                          },
+                          "named": true,
+                          "value": "lambda"
+                        },
+                        {
+                          "type": "REPEAT",
+                          "content": {
+                            "type": "SEQ",
+                            "members": [
+                              {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "STRING",
+                                  "value": ","
+                                },
+                                "named": false,
+                                "value": "tok"
+                              },
+                              {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "SYMBOL",
+                                  "name": "_lambda_rec"
+                                },
+                                "named": true,
+                                "value": "lambda"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "CHOICE",
+                          "members": [
+                            {
+                              "type": "ALIAS",
+                              "content": {
+                                "type": "STRING",
+                                "value": ","
+                              },
+                              "named": false,
+                              "value": "tok"
+                            },
+                            {
+                              "type": "BLANK"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "STRING",
+                "value": "}"
+              },
+              "named": false,
+              "value": "tok"
+            }
+          ]
+        }
+      ]
     },
     "operand": {
       "type": "SEQ",

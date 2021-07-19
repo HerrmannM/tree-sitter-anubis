@@ -24,34 +24,35 @@
 
 
 
-(term (lit_integer)@Number)
-(term (lit_float)@Float)
-(term (lit_char)@Character)
-(term (lit_string)@String)
+(lit_integer)@Number
+(lit_float)@Float
+(lit_char)@Character
+(lit_string)@String
 
-(term (binary_op bop:_@Operator))
-(term (unary_op uop:_@Operator))
+(binary_op bop:_@Operator)
+(unary_op uop:_@Operator)
 
-(term (list  ["tok"]@Structure))
-(term (tuple ["tok"]@Structure))
+(list  ["tok"]@Structure)
+(tuple ["tok"]@Structure)
 
-(term (lambda [(mapsto) "tok"]@Structure))
-(term (lambda (mapsto (identifier)@Function)))
-(term (apply ["tok"]@Function))
-(term (apply fun:(term (identifier)@Function)))
+(lambda [(mapsto) "tok"]@Structure)
+(lambda (mapsto (identifier)@Function))
+(apply ["tok"]@Function)
+(apply fun:(term (identifier)@Function))
 
-(term (conditional ["if" "is" "{" "}" "then" "else"]@Conditional))
-(term (conditional (case ["then" ","]@Conditional)))
+(conditional ["if" "is" "{" "}" "then" "else"]@Conditional)
+(conditional (case ["then" ","]@Conditional))
 
-(term (typecast "typecast"@Typedef))
+(typecast "typecast"@Typedef)
 
-(term (conditional ["since" ","]@Statement))
-(term (delegate ["delegate" "tok"]@Statement))
-(term (with ["with" "tok"]@Statement))
-(term (checking_every ["tok"]@Statement))
+(conditional ["since" ","]@Statement)
+(delegate ["delegate" "tok"]@Statement)
+(with ["with" "tok"]@Statement)
+(checking_every ["tok"]@Statement)
+(cross_rec ["tok"]@Statement)
 
-(term (snh "tok"@Exception))
-(term (todo "tok"@Todo))
+(snh "tok"@Exception)
+(todo "tok"@Todo)
 
 
 (comment)@Comment

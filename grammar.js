@@ -68,7 +68,10 @@ const TOKS = [
         eqlike:{tok: $=>choice("/=", ">=<", "<->", ">=+", "+=<", ">+", "+<", ">=-", "-=<", ">-", "-<", ">=", "=<", ">", "<"), binary:true}
     }],
     // Arithmetic operators
-    [right, { plus:{tok: $=>"+", binary:true, unary:true} }],
+    [right, {
+      plus:{tok: $=>"+", binary:true, unary:true},
+      plusplus:{tok: $=>"++", binary:true}
+    }],
     [left, {
         minus:{tok: $=>"-", binary:true, unary: true},
         absminus:{tok: $=>"|-|", binary:true},
@@ -251,8 +254,9 @@ module.exports = grammar({
             // Construction
             $.tuple,
             $.apply,
-            $.lambda,
             $.list,
+            $.lambda,
+            $.cross_rec,
             // Structure & Conditional
             $.with,
             $.conditional,
@@ -322,13 +326,34 @@ module.exports = grammar({
             ) )
         )),
 
+
+        // Closure
+        lambda: $=> choice(
+          $._lambda_simple,
+          $._lambda_rec
+        ),
+
+
         // (<function arguments>) |-> <term>
+        _lambda_simple: $=> PREC.low(seq(
+          sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
+          $.mapsto,
+          $.term
+        )),
+
+
         // (<function arguments>) |-f-> <term>
-        lambda: $=> PREC.low(
-            seq(
-                sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-                choice($.mapsto, alias($.mapstorec, $.mapsto)),
-                $.term )),
+        _lambda_rec: $=> PREC.low(seq(
+          sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
+          alias($.mapstorec, $.mapsto),
+          $.term
+        )),
+
+        // Cross recursive closure
+        cross_rec: $=> seq(
+            alias("cross_recursive", "tok"),
+            sep0(alias($._lambda_rec, $.lambda), alias("{", "tok"), alias("}", "tok"), alias(",", "tok"))
+        ),
 
         // An operand
         operand: $=> seq(field("type", choice($.type, alias($._jocker, '_'))), field("arg", $.identifier)),

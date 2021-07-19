@@ -149,6 +149,10 @@
             "named": true
           },
           {
+            "type": "plusplus",
+            "named": true
+          },
+          {
             "type": "rightshift",
             "named": true
           },
@@ -261,6 +265,10 @@
             "named": true
           },
           {
+            "type": "plusplus",
+            "named": true
+          },
+          {
             "type": "rightshift",
             "named": true
           },
@@ -338,6 +346,21 @@
         },
         {
           "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "cross_rec",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "lambda",
           "named": true
         }
       ]
@@ -645,6 +668,11 @@
     "fields": {}
   },
   {
+    "type": "plusplus",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "rightshift",
     "named": true,
     "fields": {}
@@ -701,6 +729,10 @@
         },
         {
           "type": "conditional",
+          "named": true
+        },
+        {
+          "type": "cross_rec",
           "named": true
         },
         {
@@ -1011,6 +1043,10 @@
   },
   {
     "type": "+",
+    "named": false
+  },
+  {
+    "type": "++",
     "named": false
   },
   {
