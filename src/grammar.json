@@ -3,32 +3,164 @@
   "word": "_identifier",
   "rules": {
     "anubis_source": {
-      "type": "REPEAT",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT",
+          "content": {
             "type": "SYMBOL",
             "name": "out_comment"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "par_read"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "par_execute"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "par_def"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "par_type"
           }
-        ]
-      }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_anubis_par"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "apg2"
+            }
+          ]
+        }
+      ]
+    },
+    "_anubis_par": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "par_read"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "par_execute"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "par_def"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "par_type"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "out_comment"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "apg2": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "#APG2"
+          },
+          "named": false,
+          "value": "tok"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_anubis_par"
+          }
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "PATTERN",
+            "value": "#[a-z_]\\w+"
+          },
+          "named": false,
+          "value": "tok"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "token.*"
+                },
+                "named": false,
+                "value": "tok_token"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "lexer.*"
+                },
+                "named": false,
+                "value": "tok_lexer"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "left.*"
+                },
+                "named": false,
+                "value": "tok_prec"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "right.*"
+                },
+                "named": false,
+                "value": "tok_prec"
+              },
+              {
+                "type": "PATTERN",
+                "value": "[^#].*"
+              }
+            ]
+          }
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "#"
+          },
+          "named": false,
+          "value": "tok"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_anubis_par"
+          }
+        }
+      ]
     },
     "if": {
       "type": "PREC_RIGHT",

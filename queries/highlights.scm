@@ -74,3 +74,7 @@
 (par_type ["type" "tok"]@Define)
 (par_type_alt ["tok"]@Function)
 
+(apg2 "tok"@StorageClass)
+(apg2 "tok_token"@Constant)
+(apg2 "tok_lexer"@String)
+(apg2 "tok_prec"@Type)
