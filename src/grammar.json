@@ -105,6 +105,15 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
+                  "value": "ignore.*"
+                },
+                "named": false,
+                "value": "tok_ignore"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
                   "value": "lexer.*"
                 },
                 "named": false,
@@ -138,25 +147,8 @@
                 "value": "tok_type"
               },
               {
-                "type": "ALIAS",
-                "content": {
-                  "type": "TOKEN",
-                  "content": {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "PATTERN",
-                        "value": "[^#]"
-                      },
-                      {
-                        "type": "PATTERN",
-                        "value": ".*"
-                      }
-                    ]
-                  }
-                },
-                "named": true,
-                "value": "out_comment"
+                "type": "PATTERN",
+                "value": "."
               }
             ]
           }

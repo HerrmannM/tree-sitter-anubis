@@ -205,15 +205,17 @@ module.exports = grammar({
             alias(/#[a-z_]\w+/, "tok"),
             repeat(choice(
                 alias(/token.*/, "tok_token"),
+                alias(/ignore.*/, "tok_ignore"),
                 alias(/lexer.*/, "tok_lexer"),
                 alias(/left.*/, "tok_prec"),
                 alias(/right.*/, "tok_prec"),
                 alias(/type.*/, "tok_type"),
-                alias(token(seq(/[^#]/, /.*/)), $.out_comment)
+                /./
             )),
             alias("#", "tok"),
             repeat($._anubis_par),
         ),
+
 
 
 

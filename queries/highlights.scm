@@ -76,6 +76,7 @@
 
 (apg2 "tok"@StorageClass)
 (apg2 "tok_token"@Identifier)
+(apg2 "tok_ignore"@Default)
 (apg2 "tok_prec"@Delimiter)
 (apg2 "tok_lexer"@String)
-(apg2 "tok_type"@type)
+(apg2 "tok_type"@Type)

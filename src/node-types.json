@@ -1265,6 +1265,10 @@
     "named": false
   },
   {
+    "type": "tok_ignore",
+    "named": false
+  },
+  {
     "type": "tok_lexer",
     "named": false
   },
