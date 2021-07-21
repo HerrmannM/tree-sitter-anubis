@@ -75,6 +75,7 @@
 (par_type_alt ["tok"]@Function)
 
 (apg2 "tok"@StorageClass)
-(apg2 "tok_token"@Constant)
+(apg2 "tok_token"@Identifier)
+(apg2 "tok_prec"@Delimiter)
 (apg2 "tok_lexer"@String)
-(apg2 "tok_prec"@Type)
+(apg2 "tok_type"@type)

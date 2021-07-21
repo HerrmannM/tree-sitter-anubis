@@ -184,19 +184,20 @@ module.exports = grammar({
 
         // --- --- --- First rule: entry point
         anubis_source: $=> seq(
-            repeat($.out_comment),
+            repeat(PREC.high($.out_comment)),
             choice(
                 repeat($._anubis_par),
                 $.apg2
             )
         ),
 
-        _anubis_par: $=> seq(choice(
+        _anubis_par: $=> choice(
+            $.out_comment,
             $.par_read,
             $.par_execute,
             $.par_def,
             $.par_type
-        ), optional($.out_comment)),
+        ),
 
         apg2:$=>seq(
             alias("#APG2", "tok"),
@@ -207,7 +208,8 @@ module.exports = grammar({
                 alias(/lexer.*/, "tok_lexer"),
                 alias(/left.*/, "tok_prec"),
                 alias(/right.*/, "tok_prec"),
-                /[^#].*/
+                alias(/type.*/, "tok_type"),
+                alias(token(seq(/[^#]/, /.*/)), $.out_comment)
             )),
             alias("#", "tok"),
             repeat($._anubis_par),
