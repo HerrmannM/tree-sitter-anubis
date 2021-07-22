@@ -3,6 +3,8 @@
 
 enum TokenType {
     DOT,
+    DOTDOT,
+    DOTDOTDOT,
     ENDDOT
 };
 
@@ -86,33 +88,75 @@ void tree_sitter_anubis_external_scanner_deserialize(
 //  your scanner may want to apply some special behavior when moving to a disjoint part of the document.
 //  For example, in EJS documents, the JavaScript parser uses this function to enable inserting automatic semicolon tokens in between the code directives, delimited by <% and %>.
 
+int32_t get_la(TSLexer* lexer){
+    int32_t c = lexer->lookahead;
+    //fprintf(stderr, "  Read at %d: '%c'\n", lexer->get_column(lexer), (char)c);
+    return c;
+}
+
+void commit(TSLexer* lexer){
+    lexer->advance(lexer, false);
+    lexer->mark_end(lexer);
+}
 
 bool tree_sitter_anubis_external_scanner_scan(
     void *payload,
     TSLexer *lexer,
     const bool *valid_symbols
 ) {
-    if(valid_symbols[ENDDOT] || valid_symbols[DOT]){ //fprintf(stderr, "called at %d with LA '%c' ... ", lexer->get_column(lexer), (char)lexer->lookahead);
+
+
+    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    if(
+            valid_symbols[DOT]
+            || valid_symbols[DOTDOT]
+            || valid_symbols[DOTDOTDOT]
+            || valid_symbols[ENDDOT]
+      ){
+        //fprintf(stderr, "Lexer called at %d with LA '%c'\n", lexer->get_column(lexer), (char)lexer->lookahead);
+
         // Skip spaces
         while(isspace(lexer->lookahead)){ lexer->advance(lexer, true); }
 
-        if(lexer->lookahead == '.'){ //fprintf(stderr, "in... ", lexer->get_column(lexer), (char)lexer->lookahead);
-            // We read a dot: advance and mark the end of the token.
-            // If it is follow by a space, it is a "enddot", else it is a "dot" unless it is followed by punctuation
-            lexer->advance(lexer, false);
-            lexer->mark_end(lexer);
+        int32_t c = get_la(lexer);
 
-            int32_t c = lexer->lookahead;
-
-            if( isspace(c) ){ //fprintf(stderr, "enddot %d\n", lexer->get_column(lexer));
+        if(c=='.'){
+            // We read a dot, "commit it", then read the next char
+            commit(lexer);
+            c = get_la(lexer);
+            // It's a space: return ENDDOT
+            if(isspace(c) && valid_symbols[ENDDOT]){
+                //fprintf(stderr, "returns ENDDOT\n");
                 lexer->result_symbol = ENDDOT;
                 return true;
-            } else // Do not match dot if we are going to read .. or .>
-                if(c != '.' || c!= '>') { //fprintf(stderr, "dot %d\n", lexer->get_column(lexer));
+            }
+            // It's another dot: check for DOTDOT and DOTDOTDOT
+            else if(c=='.' && valid_symbols[DOTDOT] && valid_symbols[DOTDOTDOT]){
+                // Commit the dot and read the next char
+                commit(lexer);
+                c = get_la(lexer);
+                if( c=='.' && valid_symbols[DOTDOTDOT]){
+                    //fprintf(stderr, "returns DOTDOTDOT\n");
+                    commit(lexer);
+                    lexer->result_symbol = DOTDOTDOT;
+                    return true;
+                } else if(valid_symbols[DOTDOT]) {
+                    //fprintf(stderr, "returns DOTDOT\n");
+                    lexer->result_symbol = DOTDOT;
+                    return true;
+                }
+            }
+            // It's '>': stop so we don't match .>
+            else if(c=='>'){ return false; }
+            // Else, it's a DOT
+            else if(valid_symbols[DOT]){
+                //fprintf(stderr, "returns DOT\n");
                 lexer->result_symbol = DOT;
                 return true;
             }
-        } //else { fprintf(stderr, "out\n"); }
-    }
-    return false;
-}
+        } else { return false; }
+    } // End if DOT DOTDOT DOTDOTDOT ENDDOT
+    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+} // End scan function
+

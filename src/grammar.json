@@ -561,8 +561,8 @@
       "type": "PREC_LEFT",
       "value": 24,
       "content": {
-        "type": "STRING",
-        "value": ".."
+        "type": "SYMBOL",
+        "name": "_dotdot"
       }
     },
     "dotsup": {
@@ -3684,8 +3684,8 @@
                 {
                   "type": "ALIAS",
                   "content": {
-                    "type": "STRING",
-                    "value": "..."
+                    "type": "SYMBOL",
+                    "name": "_dotdotdot"
                   },
                   "named": true,
                   "value": "par_end"
@@ -4006,6 +4006,14 @@
     {
       "type": "SYMBOL",
       "name": "_dot"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_dotdot"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_dotdotdot"
     },
     {
       "type": "SYMBOL",
