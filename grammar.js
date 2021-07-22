@@ -92,7 +92,7 @@ const TOKS = [
     [right, { pdelim:{} }],
     // Other dots
     [left, {
-        dotdot:{tok: $=>"..", binary:true },
+        dotdot:{tok: $=>$._dotdot, binary:true },
         dotsup:{tok: $=>".>", binary:true },
     }],
     // high precedence
@@ -177,6 +177,8 @@ module.exports = grammar({
 
     externals: $=>[
         $._dot,
+        $._dotdot,
+        $._dotdotdot,
         $._enddot
     ],
 
@@ -466,7 +468,7 @@ module.exports = grammar({
                 ),
                 $.type_decl, alias(":", "tok"),
                 sep0($.par_type_alt, null, null, alias(",", "tok")),
-                choice($.par_end, alias('...', $.par_end))
+                choice($.par_end, alias($._dotdotdot, $.par_end))
             ),
             // Alias = OtherType
             seq(
