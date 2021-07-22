@@ -107,7 +107,8 @@ bool tree_sitter_anubis_external_scanner_scan(
             if( isspace(c) ){ //fprintf(stderr, "enddot %d\n", lexer->get_column(lexer));
                 lexer->result_symbol = ENDDOT;
                 return true;
-            } else if(!ispunct(c) || c =='$' || c =='_'  ) { //fprintf(stderr, "dot %d\n", lexer->get_column(lexer));
+            } else // Do not match dot if we are going to read .. or .>
+                if(c != '.' || c!= '>') { //fprintf(stderr, "dot %d\n", lexer->get_column(lexer));
                 lexer->result_symbol = DOT;
                 return true;
             }
