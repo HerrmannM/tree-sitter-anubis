@@ -204,15 +204,15 @@ module.exports = grammar({
             repeat($._anubis_par),
             alias(/#[a-z_]\w+/, "tok"),
             repeat(choice(
-                alias(/token.*/, "tok_token"),
-                alias(/ignore.*/, "tok_ignore"),
-                alias(/lexer.*/, "tok_lexer"),
-                alias(/left.*/, "tok_prec"),
-                alias(/right.*/, "tok_prec"),
-                alias(/type.*/, "tok_type"),
+                alias(/\ntoken.*/, "tok_token"),
+                alias(/\nignore.*/, "tok_ignore"),
+                alias(/\nlexer.*/, "tok_lexer"),
+                alias(/\nleft.*/, "tok_prec"),
+                alias(/\nright.*/, "tok_prec"),
+                alias(/\ntype.*/, "tok_type"),
                 /./
             )),
-            alias("#", "tok"),
+            alias("\n#", "tok"),
             repeat($._anubis_par),
         ),
 
@@ -296,7 +296,7 @@ module.exports = grammar({
 
         // Identifier: in two rules so we can have _identifier in the "words"
         identifier: $=>PREC.identifier(choice($._identifier, $._jocker)),  // change "word:" to _identifier if uncommented
-        _identifier: $=>/([a-z]|_\w)\w*/,
+        _identifier: $=>/([a-z]|_[a-zA-Z0-9_])[a-zA-Z0-9_]*/,
         _jocker: $=> '_',
 
         // Binary op: this function generate a choice
@@ -362,7 +362,7 @@ module.exports = grammar({
 
 
         // (<function arguments>) |-> <term>
-        _lambda_simple: $=> PREC.low(seq(
+        _lambda_simple: $=> PREC.high(seq(
           sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
           $.mapsto,
           $.term
@@ -370,7 +370,7 @@ module.exports = grammar({
 
 
         // (<function arguments>) |-f-> <term>
-        _lambda_rec: $=> PREC.low(seq(
+        _lambda_rec: $=> PREC.high(seq(
           sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
           alias($.mapstorec, $.mapsto),
           $.term
