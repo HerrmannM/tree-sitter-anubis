@@ -65,7 +65,9 @@ const TOKS = [
     [right, { tilde:{tok: $=>"~", unary:true} }],
     [right, {
         equals:{tok: $=>"=", binary:true},
-        eqlike:{tok: $=>choice("/=", ">=<", "<->", ">=+", "+=<", ">+", "+<", ">=-", "-=<", ">-", "-<", ">=", "=<", ">", "<"), binary:true}
+        eqlike:{tok: $=>choice("/=", ">=<", ">=+", "+=<", ">+", "+<", ">=-", "-=<", ">-", "-<", ">=", "=<", ">", "<"), binary:true},
+        exchange:{tok: $=>"<->", binary:true},
+        write:{tok: $=>"<-", binary:true}
     }],
     // Arithmetic operators
     [right, {
@@ -283,6 +285,7 @@ module.exports = grammar({
             // Construction
             $.tuple,
             $.apply,
+            $.replace,
             $.list,
             $.lambda,
             $.cross_rec,
@@ -346,13 +349,20 @@ module.exports = grammar({
 
 
         // <function>(<args>)
-        // <function>[<terms>]
+        // <function>[<args>]
         apply: $=>PREC.pdelim(seq(
             field("fun", $.term),
             field("arg", choice(
-                sep0($.term, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-                sep0($.term, alias("[", "tok"), alias("]", "tok"), alias(",", "tok"))
-            ) )
+                    sep0($.term, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
+                    sep0($.term, alias("[", "tok"), alias("]", "tok"), alias(",", "tok"))
+                )
+            )
+        )),
+
+        // <term>[<name> <- <terms>]
+        replace: $=>PREC.pdelim(seq(
+            field("target", $.term),
+            field("body", seq(alias("[", "tok"), $.identifier, alias($.write, "tok"), $.term, alias("]", "tok") ))
         )),
 
 

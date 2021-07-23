@@ -40,6 +40,9 @@
 (apply ["tok"]@Function)
 (apply fun:(term (identifier)@Function))
 
+(replace ["tok"]@Statement)
+(replace target:(term (identifier)@Statement))
+
 (conditional ["if" "is" "{" "}" "then" "else"]@Conditional)
 (conditional (case ["then" ","]@Conditional))
 

@@ -416,10 +416,6 @@
           },
           {
             "type": "STRING",
-            "value": "<->"
-          },
-          {
-            "type": "STRING",
             "value": ">=+"
           },
           {
@@ -467,6 +463,22 @@
             "value": "<"
           }
         ]
+      }
+    },
+    "exchange": {
+      "type": "PREC_RIGHT",
+      "value": 14,
+      "content": {
+        "type": "STRING",
+        "value": "<->"
+      }
+    },
+    "write": {
+      "type": "PREC_RIGHT",
+      "value": 14,
+      "content": {
+        "type": "STRING",
+        "value": "<-"
       }
     },
     "plus": {
@@ -989,6 +1001,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "replace"
+        },
+        {
+          "type": "SYMBOL",
           "name": "list"
         },
         {
@@ -1354,6 +1370,72 @@
                 "content": {
                   "type": "SYMBOL",
                   "name": "eqlike"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_RIGHT",
+          "value": 14,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "bop",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "exchange"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_RIGHT",
+          "value": 14,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "term"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "bop",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "write"
                 }
               },
               {
@@ -1838,6 +1920,22 @@
           "content": {
             "type": "SYMBOL",
             "name": "eqlike"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "bop",
+          "content": {
+            "type": "SYMBOL",
+            "name": "exchange"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "bop",
+          "content": {
+            "type": "SYMBOL",
+            "name": "write"
           }
         },
         {
@@ -2561,6 +2659,67 @@
                       "value": "tok"
                     }
                   ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "replace": {
+      "type": "PREC_RIGHT",
+      "value": 23,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "target",
+            "content": {
+              "type": "SYMBOL",
+              "name": "term"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "body",
+            "content": {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "["
+                  },
+                  "named": false,
+                  "value": "tok"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "write"
+                  },
+                  "named": false,
+                  "value": "tok"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "term"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "]"
+                  },
+                  "named": false,
+                  "value": "tok"
                 }
               ]
             }
