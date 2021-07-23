@@ -131,7 +131,7 @@ bool tree_sitter_anubis_external_scanner_scan(
                 return true;
             }
             // It's another dot: check for DOTDOT and DOTDOTDOT
-            else if(c=='.' && valid_symbols[DOTDOT] && valid_symbols[DOTDOTDOT]){
+            else if(c=='.'){
                 // Commit the dot and read the next char
                 commit(lexer);
                 c = get_la(lexer);
