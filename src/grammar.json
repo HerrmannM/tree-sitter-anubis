@@ -3266,16 +3266,26 @@
                   "name": "term"
                 },
                 {
-                  "type": "STRING",
-                  "value": "is"
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": "is"
+                  },
+                  "named": false,
+                  "value": "tok"
                 },
                 {
                   "type": "SYMBOL",
                   "name": "term"
                 },
                 {
-                  "type": "STRING",
-                  "value": ","
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "STRING",
+                    "value": ","
+                  },
+                  "named": false,
+                  "value": "tok"
                 },
                 {
                   "type": "SYMBOL",
