@@ -417,7 +417,7 @@ module.exports = grammar({
                     )),
                 )
             ),
-            PREC.comma(seq("since", $.term, "is", $.term, ",", $.term))                         // 7
+            PREC.comma(seq("since", $.term, alias("is", "tok"), $.term, alias(",", "tok"), $.term))                         // 7
         )),
 
         case: $=> PREC.comma(seq($.term, "then", $.term, optional(","))),

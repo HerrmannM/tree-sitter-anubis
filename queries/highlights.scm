@@ -48,7 +48,7 @@
 
 (typecast "typecast"@Typedef)
 
-(conditional ["since" ","]@Statement)
+(conditional ["since" "tok"]@Statement)
 (delegate ["delegate" "tok"]@Statement)
 (with ["with" "tok"]@Statement)
 (checking_every ["tok"]@Statement)
