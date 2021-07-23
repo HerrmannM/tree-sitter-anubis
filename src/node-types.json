@@ -168,6 +168,10 @@
             "named": true
           },
           {
+            "type": "exchange",
+            "named": true
+          },
+          {
             "type": "leftshift",
             "named": true
           },
@@ -205,6 +209,10 @@
           },
           {
             "type": "vbar",
+            "named": true
+          },
+          {
+            "type": "write",
             "named": true
           }
         ]
@@ -284,6 +292,10 @@
             "named": true
           },
           {
+            "type": "exchange",
+            "named": true
+          },
+          {
             "type": "leftshift",
             "named": true
           },
@@ -321,6 +333,10 @@
           },
           {
             "type": "vbar",
+            "named": true
+          },
+          {
+            "type": "write",
             "named": true
           }
         ]
@@ -443,6 +459,11 @@
   },
   {
     "type": "equals",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "exchange",
     "named": true,
     "fields": {}
   },
@@ -708,6 +729,40 @@
     "fields": {}
   },
   {
+    "type": "replace",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "term",
+            "named": true
+          },
+          {
+            "type": "tok",
+            "named": false
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "term",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "rightshift",
     "named": true,
     "fields": {}
@@ -800,6 +855,10 @@
         },
         {
           "type": "lit_string",
+          "named": true
+        },
+        {
+          "type": "replace",
           "named": true
         },
         {
@@ -1057,6 +1116,11 @@
     }
   },
   {
+    "type": "write",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "%",
     "named": false
   },
@@ -1138,6 +1202,10 @@
   },
   {
     "type": "<",
+    "named": false
+  },
+  {
+    "type": "<-",
     "named": false
   },
   {
