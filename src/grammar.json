@@ -408,6 +408,10 @@
         "members": [
           {
             "type": "STRING",
+            "value": "!="
+          },
+          {
+            "type": "STRING",
             "value": "/="
           },
           {
@@ -2742,7 +2746,7 @@
     },
     "_lambda_simple": {
       "type": "PREC_RIGHT",
-      "value": 25,
+      "value": 4,
       "content": {
         "type": "SEQ",
         "members": [
@@ -2842,7 +2846,7 @@
     },
     "_lambda_rec": {
       "type": "PREC_RIGHT",
-      "value": 25,
+      "value": 4,
       "content": {
         "type": "SEQ",
         "members": [
