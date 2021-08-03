@@ -65,7 +65,7 @@ const TOKS = [
     [right, { tilde:{tok: $=>"~", unary:true} }],
     [right, {
         equals:{tok: $=>"=", binary:true},
-        eqlike:{tok: $=>choice("/=", ">=<", ">=+", "+=<", ">+", "+<", ">=-", "-=<", ">-", "-<", ">=", "=<", ">", "<"), binary:true},
+        eqlike:{tok: $=>choice("!=", "/=", ">=<", ">=+", "+=<", ">+", "+<", ">=-", "-=<", ">-", "-<", ">=", "=<", ">", "<"), binary:true},
         exchange:{tok: $=>"<->", binary:true},
         write:{tok: $=>"<-", binary:true}
     }],
@@ -374,7 +374,7 @@ module.exports = grammar({
 
 
         // (<function arguments>) |-> <term>
-        _lambda_simple: $=> PREC.high(seq(
+        _lambda_simple: $=> PREC.mapsto(seq(
           sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
           $.mapsto,
           $.term
@@ -382,7 +382,7 @@ module.exports = grammar({
 
 
         // (<function arguments>) |-f-> <term>
-        _lambda_rec: $=> PREC.high(seq(
+        _lambda_rec: $=> PREC.mapsto(seq(
           sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
           alias($.mapstorec, $.mapsto),
           $.term
