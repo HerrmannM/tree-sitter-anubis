@@ -8,6 +8,7 @@
 (type (ty_name)@Type)
 (type (ty_pname)@Type)
 (type "fun"@Function)
+(type (identifier)@Comment)
 
 (type_decl (ty_name)@Type)
 (type_decl (ty_pname)@Type)
