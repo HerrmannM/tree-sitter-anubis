@@ -817,7 +817,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "types1"
+                        "name": "_types1"
                       },
                       {
                         "type": "ALIAS",
@@ -863,7 +863,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "types1"
+                "name": "_types1"
               },
               {
                 "type": "ALIAS",
@@ -894,7 +894,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "typeargs1"
+                "name": "_typeargs1"
               },
               {
                 "type": "ALIAS",
@@ -925,7 +925,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "types2"
+                "name": "_types2"
               },
               {
                 "type": "ALIAS",
@@ -941,7 +941,7 @@
         ]
       }
     },
-    "types1": {
+    "_types1": {
       "type": "SEQ",
       "members": [
         {
@@ -978,7 +978,7 @@
         }
       ]
     },
-    "typeargs1": {
+    "_typeargs1": {
       "type": "SEQ",
       "members": [
         {
@@ -1057,7 +1057,7 @@
         }
       ]
     },
-    "types2": {
+    "_types2": {
       "type": "SEQ",
       "members": [
         {
@@ -2976,13 +2976,8 @@
             "name": "fargs"
           },
           {
-            "type": "ALIAS",
-            "content": {
-              "type": "SYMBOL",
-              "name": "mapsto"
-            },
-            "named": false,
-            "value": "tok"
+            "type": "SYMBOL",
+            "name": "mapsto"
           },
           {
             "type": "ALIAS",
@@ -3025,8 +3020,8 @@
               "type": "SYMBOL",
               "name": "mapstorec"
             },
-            "named": false,
-            "value": "tok"
+            "named": true,
+            "value": "mapsto"
           },
           {
             "type": "ALIAS",
