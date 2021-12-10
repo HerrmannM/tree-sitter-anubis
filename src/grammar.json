@@ -141,14 +141,37 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "\\ntype.*"
+                  "value": "\\ntype .*"
                 },
                 "named": false,
                 "value": "tok_type"
               },
               {
-                "type": "PATTERN",
-                "value": "."
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\n@.*"
+                },
+                "named": false,
+                "value": "tok_macro"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\n[a-zA-Z]+.*"
+                },
+                "named": false,
+                "value": "tok_other"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\n.*"
+                },
+                "named": true,
+                "value": "out_comment"
               }
             ]
           }
@@ -217,7 +240,7 @@
       "value": 1,
       "content": {
         "type": "PATTERN",
-        "value": "\"([^\"\\\\\\n]|\\\\[^\\n])*\""
+        "value": "\"([^\"])*\""
       }
     },
     "doublecolon": {
@@ -829,6 +852,10 @@
             "name": "ty_fun"
           },
           {
+            "type": "SYMBOL",
+            "name": "ty_fun2"
+          },
+          {
             "type": "PREC_RIGHT",
             "value": 25,
             "content": {
@@ -944,6 +971,116 @@
           {
             "type": "SYMBOL",
             "name": "type"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "arrow"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "type"
+          }
+        ]
+      }
+    },
+    "ty_fun2": {
+      "type": "PREC_RIGHT",
+      "value": 22,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "STRING",
+                      "value": "("
+                    },
+                    "named": false,
+                    "value": "tok"
+                  },
+                  {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "type"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "identifier"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "REPEAT",
+                        "content": {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "ALIAS",
+                              "content": {
+                                "type": "STRING",
+                                "value": ","
+                              },
+                              "named": false,
+                              "value": "tok"
+                            },
+                            {
+                              "type": "SEQ",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "type"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "identifier"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "STRING",
+                              "value": ","
+                            },
+                            "named": false,
+                            "value": "tok"
+                          },
+                          {
+                            "type": "BLANK"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "STRING",
+                  "value": ")"
+                },
+                "named": false,
+                "value": "tok"
+              }
+            ]
           },
           {
             "type": "SYMBOL",
