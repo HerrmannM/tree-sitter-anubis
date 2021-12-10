@@ -2980,15 +2980,6 @@
             "name": "mapsto"
           },
           {
-            "type": "ALIAS",
-            "content": {
-              "type": "STRING",
-              "value": ","
-            },
-            "named": false,
-            "value": "tok"
-          },
-          {
             "type": "SYMBOL",
             "name": "term"
           }
@@ -3022,15 +3013,6 @@
             },
             "named": true,
             "value": "mapsto"
-          },
-          {
-            "type": "ALIAS",
-            "content": {
-              "type": "STRING",
-              "value": ","
-            },
-            "named": false,
-            "value": "tok"
           },
           {
             "type": "SYMBOL",
@@ -3150,35 +3132,31 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "PREC_RIGHT",
-          "value": 4,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "type"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
                     "type": "SYMBOL",
-                    "name": "type"
+                    "name": "_jocker"
                   },
-                  {
-                    "type": "ALIAS",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_jocker"
-                    },
-                    "named": false,
-                    "value": "_"
-                  }
-                ]
-              },
-              {
-                "type": "SYMBOL",
-                "name": "identifier"
-              }
-            ]
-          }
+                  "named": false,
+                  "value": "_"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "identifier"
+            }
+          ]
         },
         {
           "type": "REPEAT",
@@ -3190,35 +3168,31 @@
                 "value": ","
               },
               {
-                "type": "PREC_RIGHT",
-                "value": 4,
-                "content": {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "CHOICE",
-                      "members": [
-                        {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "type"
+                      },
+                      {
+                        "type": "ALIAS",
+                        "content": {
                           "type": "SYMBOL",
-                          "name": "type"
+                          "name": "_jocker"
                         },
-                        {
-                          "type": "ALIAS",
-                          "content": {
-                            "type": "SYMBOL",
-                            "name": "_jocker"
-                          },
-                          "named": false,
-                          "value": "_"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "identifier"
-                    }
-                  ]
-                }
+                        "named": false,
+                        "value": "_"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "identifier"
+                  }
+                ]
               }
             ]
           }

@@ -7,12 +7,12 @@
 
 (type (ty_name)@Type)
 (type (ty_pname)@Type)
-(type "fun"@Function)
+(type "fun"@Type)
 (type (identifier)@Comment)
 
 (type_decl (ty_name)@Type)
 (type_decl (ty_pname)@Type)
-(type_decl "fun"@Function)
+(type_decl "fun"@Type)
 
 (type (ty_fun (arrow)@Type))
 
