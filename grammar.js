@@ -38,8 +38,8 @@ const TOKS = [
     [right, { doublecolon:{tok: $=>"::", binary:true} } ],
     // Mapsto
     [right, {
-        mapsto:{tok: $=>"|->"},
-        mapstorec:{tok: $=>seq("|-", $.identifier, "->")},
+        mapsto:{tok: $=>/\)\s*\|->/},
+        mapstorec:{tok: $=>seq(/\)\s*\|-/, $.identifier, "->")},
     }],
     [right, { colon:{tok: $=>":", binary:true} } ],
     // Keywords
@@ -254,26 +254,43 @@ module.exports = grammar({
 
 
         // --- --- --- TYPE
+        /*
         type: $=> PREC.arrow(choice(
             seq($.ty_name, optional(sep1($.type, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
             $.ty_pname,
             $.ty_prod,
             $.ty_fun,
-            $.ty_fun2,
             PREC.high(seq("(", $.type, ")"))
-        )),
+        )),*/
+
+        // ty_prod: $ => sep1(seq($.type, optional($.identifier)), alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
 
         ty_name: $ => /[A-Z]\w*/,
 
         ty_pname: $ => /\$[A-Z]\w*/,
 
-        ty_prod: $ => sep1($.type, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-
         ty_fun: $ => PREC.arrow(seq($.type, $.arrow, $.type)),
-        ty_fun2: $ => PREC.arrow(
-            seq(
-                sep1(seq($.type, $.identifier),alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-                $.arrow, $.type)
+
+        // Redo
+        type: $=>PREC.arrow(choice(
+            seq("(", $.type, ")"),
+            seq($.ty_name, optional(seq(alias("(", "tok"), $.types1, alias(")", "tok")))),
+            $.ty_pname,
+            // Functional
+            $.ty_fun,
+            seq($.ty_name, alias("(", "fun"), $.types1, alias(/\)\s*->/, "fun"), $.type),
+            seq(alias("(", "fun"), $.typeargs1, alias(/\)\s*->/, "fun"), $.type),
+            // Product
+            seq(alias("(", "tok"), $.types2, alias(")", "tok"))
+        )),
+
+        types1: $=>sep1($.type),
+
+        typeargs1: $=>sep1(PREC.arrow(seq($.type, optional($.identifier)))),
+
+        types2: $=> seq(
+            $.type, optional($.identifier), alias(",", "tok"),
+            sep1(seq($.type, optional($.identifier)), null, null, alias(",", "tok"))
         ),
 
 
@@ -383,16 +400,13 @@ module.exports = grammar({
 
         // (<function arguments>) |-> <term>
         _lambda_simple: $=> PREC.mapsto(seq(
-          sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-          $.mapsto,
+          alias("(", "tok"), $.fargs, alias($.mapsto, "tok"), alias(",", "tok"),
           $.term
         )),
 
-
         // (<function arguments>) |-f-> <term>
         _lambda_rec: $=> PREC.mapsto(seq(
-          sep0($.operand, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
-          alias($.mapstorec, $.mapsto),
+          alias("(", "tok"), $.fargs, alias($.mapstorec, "tok"), alias(",", "tok"),
           $.term
         )),
 
@@ -401,6 +415,13 @@ module.exports = grammar({
             alias("cross_recursive", "tok"),
             sep0(alias($._lambda_rec, $.lambda), alias("{", "tok"), alias("}", "tok"), alias(",", "tok"))
         ),
+
+        fargs:$=>sep1(PREC.mapsto(
+            seq(choice($.type, alias($._jocker, '_')), $.identifier)
+            )
+        ),
+
+
 
         // An operand
         operand: $=> seq(field("type", choice($.type, alias($._jocker, '_'))), field("arg", $.identifier)),
