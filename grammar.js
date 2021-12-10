@@ -400,14 +400,12 @@ module.exports = grammar({
 
         // (<function arguments>) |-> <term>
         _lambda_simple: $=> PREC.mapsto(seq(
-          alias("(", "tok"), $.fargs, $.mapsto, alias(",", "tok"),
-          $.term
+          alias("(", "tok"), $.fargs, $.mapsto, $.term
         )),
 
         // (<function arguments>) |-f-> <term>
         _lambda_rec: $=> PREC.mapsto(seq(
-          alias("(", "tok"), $.fargs, alias($.mapstorec, $.mapsto), alias(",", "tok"),
-          $.term
+          alias("(", "tok"), $.fargs, alias($.mapstorec, $.mapsto), $.term
         )),
 
         // Cross recursive closure
@@ -416,9 +414,8 @@ module.exports = grammar({
             sep0(alias($._lambda_rec, $.lambda), alias("{", "tok"), alias("}", "tok"), alias(",", "tok"))
         ),
 
-        fargs:$=>sep1(PREC.mapsto(
+        fargs:$=>sep1(
             seq(choice($.type, alias($._jocker, '_')), $.identifier)
-            )
         ),
 
 
