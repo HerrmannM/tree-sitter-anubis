@@ -468,6 +468,25 @@
     "fields": {}
   },
   {
+    "type": "fargs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "identifier",
     "named": true,
     "fields": {}
@@ -481,11 +500,7 @@
       "required": true,
       "types": [
         {
-          "type": "mapsto",
-          "named": true
-        },
-        {
-          "type": "operand",
+          "type": "fargs",
           "named": true
         },
         {
@@ -534,21 +549,6 @@
     "type": "lit_string",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "mapsto",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
   },
   {
     "type": "minus",
@@ -905,7 +905,17 @@
   {
     "type": "tok",
     "named": false,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "tuple",
@@ -942,44 +952,6 @@
     }
   },
   {
-    "type": "ty_fun2",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "ty_prod",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "type",
     "named": true,
     "fields": {},
@@ -992,10 +964,6 @@
           "named": true
         },
         {
-          "type": "ty_fun2",
-          "named": true
-        },
-        {
           "type": "ty_name",
           "named": true
         },
@@ -1004,11 +972,19 @@
           "named": true
         },
         {
-          "type": "ty_prod",
+          "type": "type",
           "named": true
         },
         {
-          "type": "type",
+          "type": "typeargs1",
+          "named": true
+        },
+        {
+          "type": "types1",
+          "named": true
+        },
+        {
+          "type": "types2",
           "named": true
         }
       ]
@@ -1034,6 +1010,25 @@
     }
   },
   {
+    "type": "typeargs1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "typecast",
     "named": true,
     "fields": {},
@@ -1043,6 +1038,40 @@
       "types": [
         {
           "type": "term",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "types1",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "types2",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
           "named": true
         },
         {
@@ -1417,14 +1446,6 @@
   },
   {
     "type": "|",
-    "named": false
-  },
-  {
-    "type": "|-",
-    "named": false
-  },
-  {
-    "type": "|->",
     "named": false
   },
   {

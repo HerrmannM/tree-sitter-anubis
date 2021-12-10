@@ -15,7 +15,7 @@
 
 (type (ty_fun (arrow)@Type))
 
-(type (ty_prod "tok"@Type))
+(type "tok"@Type)
 
 
 
