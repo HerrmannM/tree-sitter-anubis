@@ -942,6 +942,29 @@
     }
   },
   {
+    "type": "ty_fun2",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "ty_prod",
     "named": true,
     "fields": {},
@@ -966,6 +989,10 @@
       "types": [
         {
           "type": "ty_fun",
+          "named": true
+        },
+        {
+          "type": "ty_fun2",
           "named": true
         },
         {
@@ -1338,6 +1365,14 @@
   },
   {
     "type": "tok_lexer",
+    "named": false
+  },
+  {
+    "type": "tok_macro",
+    "named": false
+  },
+  {
+    "type": "tok_other",
     "named": false
   },
   {

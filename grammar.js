@@ -31,7 +31,7 @@ const TOKS = [
             lit_float:{tok: $=> /[0-9]+\.[0-9]+/},
             // '_escape_sequence' defined in main grammar
             lit_char:{ tok: $ => /'([^'\\\n]|\\[^\n])'/ },
-            lit_string:{ tok: $ => /"([^"\\\n]|\\[^\n])*"/ }
+            lit_string:{ tok: $ => /"([^"])*"/ }
     }],
     // Separators
     [right, { comma:{} }],
@@ -213,8 +213,10 @@ module.exports = grammar({
                 alias(/\nlexer.*/, "tok_lexer"),
                 alias(/\nleft.*/, "tok_prec"),
                 alias(/\nright.*/, "tok_prec"),
-                alias(/\ntype.*/, "tok_type"),
-                /./
+                alias(/\ntype .*/, "tok_type"),
+                alias(/\n@.*/, "tok_macro"),
+                alias(/\n[a-zA-Z]+.*/, "tok_other"),
+                alias(/\n.*/, $.out_comment)
             )),
             alias("\n#", "tok"),
             repeat($._anubis_par),
@@ -257,6 +259,7 @@ module.exports = grammar({
             $.ty_pname,
             $.ty_prod,
             $.ty_fun,
+            $.ty_fun2,
             PREC.high(seq("(", $.type, ")"))
         )),
 
@@ -266,7 +269,12 @@ module.exports = grammar({
 
         ty_prod: $ => sep1($.type, alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
 
-        ty_fun: $ => PREC.arrow((seq($.type, $.arrow, $.type))),
+        ty_fun: $ => PREC.arrow(seq($.type, $.arrow, $.type)),
+        ty_fun2: $ => PREC.arrow(
+            seq(
+                sep1(seq($.type, $.identifier),alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
+                $.arrow, $.type)
+        ),
 
 
 
