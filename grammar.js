@@ -31,7 +31,7 @@ const TOKS = [
             lit_float:{tok: $=> /[0-9]+\.[0-9]+/},
             // '_escape_sequence' defined in main grammar
             lit_char:{ tok: $ => /'([^'\\\n]|\\[^\n])'/ },
-            lit_string:{ tok: $ => /"([^"])*"/ }
+            lit_string:{ tok: $ => /"(?:[^"\\]|\\.)*"/ }
     }],
     // Separators
     [right, { comma:{} }],
