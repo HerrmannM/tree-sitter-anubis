@@ -196,11 +196,11 @@ module.exports = grammar({
         ),
 
         _anubis_par: $=> choice(
-            $.out_comment,
             $.par_read,
             $.par_execute,
             $.par_def,
-            $.par_type
+            $.par_type,
+            $.out_comment,
         ),
 
         apg2:$=>seq(
@@ -252,6 +252,62 @@ module.exports = grammar({
         // --- EXECUTE paragraph [Ee]xecute[\ \t]+(.+)
         par_execute: $ => seq(alias(/[Ee]xecute/, "execute"),/\s+/, alias(/.*/, "command")),
 
+        // --- --- --- DEFINE
+        par_def: $=> seq(
+            choice(
+                // Private
+                alias(/[Dd]efine/,"define"),
+                alias(/[Dd]efine\s+macro/,"define"),
+                alias(/[Dd]efine\s+inline/,"define"),
+                // Public
+                alias(/[Pp]ublic\s+define/,"define"),
+                alias(/[Pp]ublic\s+define\s+macro/,"define"),
+                alias(/[Pp]ublic\s+define\s+inline/,"define"),
+                // Module
+                alias(/[Gg]lobal\s+define/,"define"),
+                alias(/[Mm]odule/,"define")
+            ),
+            $.type,
+            choice(
+                seq($.identifier, optional(sep1($.operand, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
+                seq($.operand, $.binary_tok, $.operand),
+                seq($.unary_tok, $.operand)
+            ), optional(seq("=", $.term)), $.par_end
+        ),
+
+
+        // --- PAR TYPE
+        par_type: $ => choice(
+            // Type definition, with alternaties
+            seq(
+                choice(
+                    alias(/[Tt]ype/, "type"),
+                    alias(/[Pp]ublic\s+type/, "type"),
+                ),
+                $.type_decl, alias(":", "tok"),
+                sep0($.par_type_alt, null, null, alias(",", "tok")),
+                choice($.par_end, alias($._dotdotdot, $.par_end))
+            ),
+            // Alias = OtherType
+            seq(
+                choice(
+                    alias(/[Tt]ype\s+alias/, "type"),
+                    alias(/[Pp]ublic\s+type\s+alias/, "type"),
+                ),
+                seq($.type_decl, alias('=', "tok"), $.type, $.par_end)
+            ),
+        ),
+
+        type_decl: $=> seq($.ty_name, optional(sep1($.ty_pname, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
+
+        // --- Declaration of a type: body is a list of alternatives terminated by 'par_end'
+        par_type_alt: $ => PREC.high(
+            choice(
+                seq($.identifier, optional(sep0($.par_type_alt_factor,  alias("(", "tok"), alias(")", "tok"), alias(",", "tok")))),
+                seq($.par_type_alt_factor, $.binary_tok, $.par_type_alt_factor)
+        )),
+
+        par_type_alt_factor: $ => seq($.type, optional($.identifier)),
 
         // --- --- --- TYPE
         /*
@@ -464,68 +520,8 @@ module.exports = grammar({
             alias(/checking\s+every/, "tok"), $.term,
             alias(/milliseconds\s*,\s+wait\s+for/, "tok"), $.term,
             alias("then", "tok"), $.term
-        ),
+        )
 
-
-        // --- --- --- --- --- --- PARAGRAPGHS
-
-
-        // --- --- --- DEFINE
-        par_def: $=> seq(
-            choice(
-                // Private
-                alias(/[Dd]efine/,"define"),
-                alias(/[Dd]efine\s+macro/,"define"),
-                alias(/[Dd]efine\s+inline/,"define"),
-                // Public
-                alias(/[Pp]ublic\s+define/,"define"),
-                alias(/[Pp]ublic\s+define\s+macro/,"define"),
-                alias(/[Pp]ublic\s+define\s+inline/,"define"),
-                // Module
-                alias(/[Gg]lobal\s+define/,"define"),
-                alias(/[Mm]odule/,"define")
-            ),
-            $.type,
-            choice(
-                seq($.identifier, optional(sep1($.operand, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
-                seq($.operand, $.binary_tok, $.operand),
-                seq($.unary_tok, $.operand)
-            ), optional(seq("=", $.term)), $.par_end
-        ),
-
-
-        // --- --- --- TYPE
-        par_type: $ => choice(
-            // Type definition, with alternaties
-            seq(
-                choice(
-                    alias(/[Tt]ype/, "type"),
-                    alias(/[Pp]ublic\s+type/, "type"),
-                ),
-                $.type_decl, alias(":", "tok"),
-                sep0($.par_type_alt, null, null, alias(",", "tok")),
-                choice($.par_end, alias($._dotdotdot, $.par_end))
-            ),
-            // Alias = OtherType
-            seq(
-                choice(
-                    alias(/[Tt]ype\s+alias/, "type"),
-                    alias(/[Pp]ublic\s+type\s+alias/, "type"),
-                ),
-                seq($.type_decl, alias('=', "tok"), $.type, $.par_end)
-            ),
-        ),
-
-        type_decl: $=> seq($.ty_name, optional(sep1($.ty_pname, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
-
-        // --- Declaration of a type: body is a list of alternatives terminated by 'par_end'
-        par_type_alt: $ => PREC.high(
-            choice(
-                seq($.identifier, optional(sep0($.par_type_alt_factor,  alias("(", "tok"), alias(")", "tok"), alias(",", "tok")))),
-                seq($.par_type_alt_factor, $.binary_tok, $.par_type_alt_factor)
-        )),
-
-        par_type_alt_factor: $ => seq($.type, optional($.identifier)),
     }
 
 });
