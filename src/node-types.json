@@ -106,11 +106,6 @@
     }
   },
   {
-    "type": "arrow",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "backslash",
     "named": true,
     "fields": {}
@@ -942,23 +937,14 @@
     }
   },
   {
-    "type": "ty_fun",
+    "type": "ty_name",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
+  },
+  {
+    "type": "ty_pname",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "type",
@@ -973,15 +959,7 @@
           "named": true
         },
         {
-          "type": "ty_fun",
-          "named": true
-        },
-        {
           "type": "ty_name",
-          "named": true
-        },
-        {
-          "type": "ty_pname",
           "named": true
         },
         {
@@ -1367,14 +1345,6 @@
   {
     "type": "transmit",
     "named": false
-  },
-  {
-    "type": "ty_name",
-    "named": true
-  },
-  {
-    "type": "ty_pname",
-    "named": true
   },
   {
     "type": "type",
