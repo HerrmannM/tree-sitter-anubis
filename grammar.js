@@ -55,6 +55,10 @@ const TOKS = [
     [right, { semicolon:{tok: $=>";", binary:true} }],
     // Indentifier: just the precedence
     [right, { identifier:{} }],
+    // Other
+    [right, {prec_of_term:{}}],
+    [right, {prec_of_type:{}}],
+    [right, {prec_sym_type:{}}],
     // Logical operators
     [right, { vbar:{tok: $=>"|", binary:true} }],
     [right, { ampersand:{tok: $=>"&", binary:true} }],
@@ -310,43 +314,44 @@ module.exports = grammar({
         par_type_alt_factor: $ => seq($.type, optional($.identifier)),
 
         // --- --- --- TYPE
-        /*
-        type: $=> PREC.arrow(choice(
-            seq($.ty_name, optional(sep1($.type, alias("(", "fun"), alias(")", "fun"), alias(",", "fun")))),
-            $.ty_pname,
-            $.ty_prod,
-            $.ty_fun,
-            PREC.high(seq("(", $.type, ")"))
-        )),*/
 
-        // ty_prod: $ => sep1(seq($.type, optional($.identifier)), alias("(", "tok"), alias(")", "tok"), alias(",", "tok")),
+        ty_name: $ => PREC.prec_sym_type( /[A-Z]\w*/),
 
-        ty_name: $ => /[A-Z]\w*/,
+        ty_pname: $ => PREC.prec_sym_type(/\$[A-Z]\w*/),
 
-        ty_pname: $ => /\$[A-Z]\w*/,
+        type: $=> PREC.prec_of_type(choice(
+            seq(alias("(", "tok"), $.type, alias(")", "tok")),
 
-        ty_fun: $ => PREC.arrow(seq($.type, $.arrow, $.type)),
+            seq($.ty_name, optional(seq(alias("(", "tok"), $._types1,
+                choice(
+                    alias(")", "tok"),
+                    seq(alias(/\)\s*->/, "fun"), $.type)
+                )
+            ))),
 
-        // Redo
-        type: $=>PREC.arrow(choice(
-            seq("(", $.type, ")"),
-            seq($.ty_name, optional(seq(alias("(", "tok"), $._types1, alias(")", "tok")))),
-            $.ty_pname,
-            // Functional
-            $.ty_fun,
-            seq($.ty_name, alias("(", "fun"), $._types1, alias(/\)\s*->/, "fun"), $.type),
-            seq(alias("(", "fun"), $._typeargs1, alias(/\)\s*->/, "fun"), $.type),
-            // Product
-            seq(alias("(", "tok"), $._types2, alias(")", "tok"))
+            seq(alias("(", "tok"), $._typesargs1, alias(/\)\s*->/, "tok"), $.type),
+            seq(alias("(", "tok"), $._types2, alias(")", "tok")),
+
+            seq($.type, alias($.arrow, "tok"), $.type)
         )),
 
-        _types1: $=>sep1($.type),
+        _types1: $=> sep1($.type, null, null, alias(",", "tok")),
 
-        _typeargs1: $=>sep1(PREC.arrow(seq($.type, optional($.identifier)))),
+        _typesargs1: $=> choice(
+            $.type,
+            seq($.type, $.identifier),
+            seq($.type, alias(",", "tok"), $._typesargs1),
+            seq($.type, $.identifier, alias(",", "tok"), $._typesargs1),
 
-        _types2: $=> seq(
-            $.type, optional($.identifier), alias(",", "tok"),
-            sep1(seq($.type, optional($.identifier)), null, null, alias(",", "tok"))
+        ),
+
+        _types2: $=>choice(
+            seq($.type, alias(",", "tok"), $.type),
+            seq($.type, $.identifier, alias(",", "tok"), $.type),
+            seq($.type, alias(",", "tok"), $.type, $.identifier),
+            seq($.type, $.identifier, alias(",", "tok"), $.type, $.identifier),
+            seq($.type, alias(",", "tok"), $._types2),
+            seq($.type, $.identifier, alias(",", "tok"), $._types2),
         ),
 
 
@@ -470,9 +475,9 @@ module.exports = grammar({
             sep0(alias($._lambda_rec, $.lambda), alias("{", "tok"), alias("}", "tok"), alias(",", "tok"))
         ),
 
-        fargs:$=>sep1(
+        fargs:$=>sep1(PREC.comma(
             seq(choice($.type, alias($._jocker, '_')), $.identifier)
-        ),
+        )),
 
 
 
