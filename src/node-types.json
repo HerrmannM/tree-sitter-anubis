@@ -963,6 +963,10 @@
           "named": true
         },
         {
+          "type": "ty_pname",
+          "named": true
+        },
+        {
           "type": "type",
           "named": true
         }
