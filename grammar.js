@@ -322,7 +322,7 @@ module.exports = grammar({
         type: $=> PREC.prec_of_type(choice(
             seq(alias("(", "tok"), $.type, alias(")", "tok")),
 
-            seq($.ty_name, optional(seq(alias("(", "tok"), $._types1,
+            seq(choice($.ty_name, $.ty_pname), optional(seq(alias("(", "tok"), $._types1,
                 choice(
                     alias(")", "tok"),
                     seq(alias(/\)\s*->/, "fun"), $.type)
