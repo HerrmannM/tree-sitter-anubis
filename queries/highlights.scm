@@ -1,82 +1,83 @@
-["(" ")" ","]@Delimiter
-(identifier)@Identifier
-(binary_tok bop:_@Operator)
-(unary_tok uop:_@Operator)
+["(" ")" ","]@punctuation
+(identifier)@variable
+(binary_tok bop:_@operator)
+(unary_tok uop:_@operator)
 
 
 
-(type (ty_name)@Type)
-(type (ty_pname)@Type)
-(type (identifier)@Comment)
+(type (ty_name)@type)
+(type (ty_pname)@type)
+(type (identifier)@comment)
 
-(type_decl (ty_name)@Type)
-(type_decl (ty_pname)@Type)
+(type_decl (ty_name)@type)
+(type_decl (ty_pname)@type)
 
-(type "tok"@Type)
-
-
-(operand type:"_"@Type)
-(operand (identifier)@Identifier)
+(type "tok"@type)
 
 
-
-(lit_integer)@Number
-(lit_float)@Float
-(lit_char)@Character
-(lit_string)@String
-
-(binary_op bop:_@Operator)
-(unary_op uop:_@Operator)
-
-(list  ["tok"]@Structure)
-(tuple ["tok"]@Structure)
-
-(lambda [(mapsto) "tok"]@Structure)
-(lambda (mapsto (identifier)@Function))
-(apply ["tok"]@Function)
-(apply fun:(term (identifier)@Function))
-
-(replace ["tok"]@Statement)
-(replace target:(term (identifier)@Statement))
-
-(conditional ["if" "is" "{" "}" "then" "else"]@Conditional)
-(conditional (case ["then" ","]@Conditional))
-
-(typecast "typecast"@Typedef)
-
-(conditional ["since" "tok"]@Statement)
-(delegate ["delegate" "tok"]@Statement)
-(with ["with" "tok"]@Statement)
-(checking_every ["tok"]@Statement)
-(cross_rec ["tok"]@Statement)
-
-(snh "tok"@Exception)
-(todo "tok"@Todo)
-
-
-(comment)@Comment
-(out_comment)@Comment
+(operand type:"_"@type)
+(operand (identifier)@variable)
 
 
 
-((_)  (par_end)@Define .)
+(lit_integer)@number
+(lit_float)@float
+(lit_char)@character
+(lit_string)@string
+
+(binary_op bop:_@operator)
+(unary_op uop:_@operator)
+
+(list  ["tok"]@structure)
+(tuple ["tok"]@structure)
+
+(lambda [(mapsto) "tok"]@structure)
+(lambda (mapsto (identifier)@function))
+(apply ["tok"]@function)
+(apply fun:(term (identifier)@function))
+
+(replace ["tok"]@constructor)
+(replace target:(term (identifier)@constructor))
+
+(conditional ["if" "is" "{" "}" "then" "else"]@conditional)
+(conditional (case ["then" ","]@conditional))
+(conditional ["since" "tok"]@constructor)
+
+(typecast "typecast"@type.definition)
+
+(with ["with" "tok"]@constructor)
+
+(delegate ["delegate" "tok"]@keyword)
+(checking_every ["tok"]@keyword)
+(cross_rec ["tok"]@keyword)
+
+(snh "tok"@exception)
+(todo "tok"@text.todo)
 
 
-(par_read ["read" "transmit"]@Define "path"@Include)
-(par_execute ["execute"]@Define "command"@Include)
+(comment)@comment
+(out_comment)@comment
 
 
-(par_def ["define" "="]@Define)
-(par_def ((identifier)@function["fun"]@Function))
+
+((_)  (par_end)@define .)
 
 
-(par_type ["type" "tok"]@Define)
-(par_type_alt ["tok"]@Function)
+(par_read ["read" "transmit"]@include "path"@normal)
+(par_execute ["execute"]@preproc "command"@normal)
 
-(apg2 "tok"@StorageClass)
-(apg2 "tok_token"@Identifier)
-(apg2 "tok_ignore"@Identifier)
-(apg2 "tok_prec"@Delimiter)
-(apg2 "tok_lexer"@String)
-(apg2 "tok_type"@Type)
-(apg2 "tok_macro"@Statement)
+
+(par_def ["define" "="]@define)
+(par_def ((identifier)@function["fun"]@function))
+
+
+(par_type ["type" "tok"]@define)
+(par_type_alt ["tok"]@function)
+
+(apg2 "tok"@storageclass)
+(apg2 "tok_token"@variable)
+(apg2 "tok_ignore"@variable)
+(apg2 "tok_prec"@punctuation)
+(apg2 "tok_lexer"@string)
+(apg2 "tok_type"@type)
+(apg2 "tok_macro"@macro)
