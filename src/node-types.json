@@ -345,6 +345,30 @@
     }
   },
   {
+    "type": "builtin",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "builtin_kw",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "builtin_kw",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "carret",
     "named": true,
     "fields": {}
@@ -899,6 +923,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "checking_every",
           "named": true
         },
@@ -1339,6 +1367,10 @@
     "extra": true
   },
   {
+    "type": "cover",
+    "named": false
+  },
+  {
     "type": "define",
     "named": false
   },
@@ -1380,6 +1412,10 @@
   },
   {
     "type": "read",
+    "named": false
+  },
+  {
+    "type": "serialize",
     "named": false
   },
   {
@@ -1432,6 +1468,14 @@
   },
   {
     "type": "typecast",
+    "named": false
+  },
+  {
+    "type": "uncover",
+    "named": false
+  },
+  {
+    "type": "unserialize",
     "named": false
   },
   {

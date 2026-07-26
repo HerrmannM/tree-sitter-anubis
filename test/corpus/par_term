@@ -311,9 +311,12 @@ Lambda, multiple arguments without comma
 define A->A g = (A a B b)|->a.
 
 --------------------------------------------------------------------------------
+
 (anubis_source
     (par_def
-        (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
+        (type
+            (type (ty_name))
+            (type (ty_name)))
         (identifier)
         (term (lambda
             (fargs

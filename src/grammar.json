@@ -1915,6 +1915,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "builtin"
+        },
+        {
+          "type": "SYMBOL",
           "name": "checking_every"
         },
         {
@@ -1939,6 +1943,62 @@
           }
         }
       ]
+    },
+    "builtin_kw": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "serialize"
+        },
+        {
+          "type": "STRING",
+          "value": "unserialize"
+        },
+        {
+          "type": "STRING",
+          "value": "cover"
+        },
+        {
+          "type": "STRING",
+          "value": "uncover"
+        }
+      ]
+    },
+    "builtin": {
+      "type": "PREC_RIGHT",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "builtin_kw"
+          },
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "STRING",
+              "value": "("
+            },
+            "named": false,
+            "value": "tok"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "term"
+          },
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "STRING",
+              "value": ")"
+            },
+            "named": false,
+            "value": "tok"
+          }
+        ]
+      }
     },
     "identifier": {
       "type": "PREC_RIGHT",

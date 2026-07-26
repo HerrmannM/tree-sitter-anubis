@@ -1,83 +1,145 @@
-["(" ")" ","]@punctuation
-(identifier)@variable
-(binary_tok bop:_@operator)
-(unary_tok uop:_@operator)
+; ============================================================================
+; tree-sitter-anubis -- highlight queries
+;
+; Capture names follow the Neovim standard set (:h treesitter-highlight-groups).
+; Later patterns win over earlier ones, so generic rules come first and are
+; progressively refined below.
+; ============================================================================
 
 
+; --- Punctuation ------------------------------------------------------------
 
-(type (ty_name)@type)
-(type (ty_pname)@type)
-(type (identifier)@comment)
-
-(type_decl (ty_name)@type)
-(type_decl (ty_pname)@type)
-
-(type "tok"@type)
+["(" ")"] @punctuation.bracket
+[","]     @punctuation.delimiter
 
 
-(operand type:"_"@type)
-(operand (identifier)@variable)
+; --- Identifiers (generic; refined by later patterns) -----------------------
+
+(identifier) @variable
 
 
+; --- Operators --------------------------------------------------------------
 
-(lit_integer)@number
-(lit_float)@float
-(lit_char)@character
-(lit_string)@string
+(binary_tok bop: _ @operator)
+(unary_tok  uop: _ @operator)
 
-(binary_op bop:_@operator)
-(unary_op uop:_@operator)
-
-(list  ["tok"]@structure)
-(tuple ["tok"]@structure)
-
-(lambda [(mapsto) "tok"]@structure)
-(lambda (mapsto (identifier)@function))
-(apply ["tok"]@function)
-(apply fun:(term (identifier)@function))
-
-(replace ["tok"]@constructor)
-(replace target:(term (identifier)@constructor))
-
-(conditional ["if" "is" "{" "}" "then" "else"]@conditional)
-(conditional (case ["then" ","]@conditional))
-(conditional ["since" "tok"]@constructor)
-
-(typecast "typecast"@type.definition)
-
-(with ["with" "tok"]@constructor)
-
-(delegate ["delegate" "tok"]@keyword)
-(checking_every ["tok"]@keyword)
-(cross_rec ["tok"]@keyword)
-
-(snh "tok"@exception)
-(todo "tok"@text.todo)
+(binary_op  bop: _ @operator)
+(unary_op   uop: _ @operator)
 
 
-(comment)@comment
-(out_comment)@comment
+; --- Literals ---------------------------------------------------------------
+
+(lit_integer) @number
+(lit_float)   @number.float
+(lit_char)    @character
+(lit_string)  @string
 
 
+; --- Types ------------------------------------------------------------------
 
-((_)  (par_end)@define .)
+(type (ty_name)  @type)
+(type (ty_pname) @type)
+(type "tok"      @type)
+
+(type_decl (ty_name)  @type)
+(type_decl (ty_pname) @type)
+
+; Named arguments inside function types -- dimmed, as in the original file.
+; Change to @variable.parameter if you would rather see them as parameters.
+(type (identifier) @comment)
+
+; Built-in type names. Extend the list as needed; these are ordinary ty_name
+; nodes, so this is purely cosmetic and costs nothing in the grammar.
+((ty_name) @type.builtin
+ (#any-of? @type.builtin
+   "Int" "Float" "String" "ByteArray" "Omega" "Covered"
+   "Var" "QueueIn" "QueueOut" "StructPtr" "Opaque"
+   "RStream" "WStream" "RWStream"
+   "FunctionFamily" "Listener"))
 
 
-(par_read ["read" "transmit"]@include "path"@normal)
-(par_execute ["execute"]@preproc "command"@normal)
+; --- Operation arguments (OpArg / OpArgs) -----------------------------------
+
+(operand arg: (identifier) @variable.parameter)
+(operand (lazy) @keyword.modifier)
 
 
-(par_def ["define" "="]@define)
-(par_def ((identifier)@function["fun"]@function))
+; --- Lambda arguments (FArg / FArgs) ----------------------------------------
+
+(farg arg:  (identifier) @variable.parameter)
+(farg type: "_" @type)
 
 
-(par_type ["type" "tok"]@define)
-(par_type_alt ["tok"]@function)
+; --- Construction -----------------------------------------------------------
 
-(apg2 "tok"@storageclass)
-(apg2 "tok_token"@variable)
-(apg2 "tok_ignore"@variable)
-(apg2 "tok_prec"@punctuation)
-(apg2 "tok_lexer"@string)
-(apg2 "tok_type"@type)
-(apg2 "tok_macro"@macro)
+(list  ["tok"] @punctuation.bracket)
+(tuple ["tok"] @punctuation.bracket)
+
+(lambda "tok"    @punctuation.bracket)
+(lambda (mapsto) @keyword.function)
+(lambda (mapsto (identifier) @function))
+
+(apply ["tok"] @punctuation.bracket)
+(apply fun: (term (identifier) @function.call))
+
+(replace ["tok"] @constructor)
+(replace target: (term (identifier) @constructor))
+
+(typecast "typecast" @type.definition)
+
+
+; --- Conditionals -----------------------------------------------------------
+
+(conditional ["if" "is" "{" "}" "then" "else"] @keyword.conditional)
+(conditional (case ["then" ","] @keyword.conditional))
+(conditional ["since" "tok"] @keyword.conditional)
+
+
+; --- Keywords and built-in operations ---------------------------------------
+
+(with ["with" "tok"] @keyword)
+
+(delegate ["delegate" "tok"] @keyword)
+(checking_every ["tok"] @keyword)
+(cross_rec ["tok"] @keyword)
+
+(builtin_kw) @function.builtin
+(builtin "tok" @punctuation.bracket)
+
+(snh  "tok" @keyword.exception)
+(todo "tok" @comment.todo)
+
+
+; --- Comments ---------------------------------------------------------------
+
+(comment)     @comment
+(out_comment) @comment
+
+
+; --- Paragraph structure ----------------------------------------------------
+
+(par_end) @punctuation.delimiter
+
+(par_read ["read" "transmit"] @keyword.import)
+(par_read "path" @string.special.path)
+
+(par_execute ["execute"] @keyword.directive)
+(par_execute "command" @string.special)
+
+(par_def ["define" "="] @keyword)
+(par_def (identifier) @function)
+(par_def "fun" @punctuation.bracket)
+
+(par_type ["type" "tok"] @keyword.type)
+(par_type_alt ["tok"] @constructor)
+
+
+; --- APG2 blocks ------------------------------------------------------------
+
+(apg2 "tok"       @keyword.modifier)
+(apg2 "tok_token" @variable)
+(apg2 "tok_ignore" @variable)
+(apg2 "tok_prec"  @punctuation.delimiter)
+(apg2 "tok_lexer" @string)
+(apg2 "tok_type"  @type)
+(apg2 "tok_macro" @function.macro)

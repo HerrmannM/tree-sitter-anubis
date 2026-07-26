@@ -6,11 +6,10 @@
       "camelcase": "Anubis",
       "title": "Anubis",
       "scope": "source.anubis",
-      "file-types": [
-        "anubis"
-      ],
+      "file-types": [ "anubis" ],
       "injection-regex": "^anubis$",
       "class-name": "TreeSitterAnubis"
+      "highlights": ["queries/highlights.scm"]
     }
   ],
   "metadata": {

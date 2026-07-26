@@ -27,6 +27,7 @@ const TOKS = [
   // Keywords, literals
   [right, {
     if:{tok: $=>"if"},
+    builtin:{},
     lit_integer:{ tok: $=>choice( /[0-9]+/, /0[Xx][0-9A-Fa-f]+/) },
     lit_float:{tok: $=> /[0-9]+\.[0-9]+/},
     // '_escape_sequence' defined in main grammar
@@ -381,9 +382,21 @@ module.exports = grammar({
           // Other: Should not happen, todo,...
           $.snh,
           $.todo,
+          $.builtin,
           $.checking_every,
           PREC.high(seq("(", $.term, ")"),)
         ),
+
+
+        
+        // yy__serialize | yy__unserialize | yy__cover | yy__uncover  lpar Term rpar
+        builtin_kw: $=> choice("serialize", "unserialize", "cover", "uncover"),
+
+        builtin: $=> PREC.builtin(seq(
+            $.builtin_kw, alias("(", "tok"), $.term, alias(")", "tok")
+        )),
+
+
 
         // Identifier: in two rules so we can have _identifier in the "words"
         identifier: $=>PREC.identifier(choice($._identifier, $._jocker)),  // change "word:" to _identifier if uncommented
