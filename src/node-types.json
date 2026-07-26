@@ -469,6 +469,36 @@
     "fields": {}
   },
   {
+    "type": "farg",
+    "named": true,
+    "fields": {
+      "arg": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "fargs",
     "named": true,
     "fields": {},
@@ -477,11 +507,7 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "type",
+          "type": "farg",
           "named": true
         }
       ]
@@ -576,6 +602,21 @@
     "fields": {}
   },
   {
+    "type": "opargs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "operand",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "operand",
     "named": true,
     "fields": {
@@ -589,14 +630,34 @@
           }
         ]
       },
+      "lazy": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "tok",
+            "named": false
+          }
+        ]
+      },
+      "size": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "term",
+            "named": true
+          },
+          {
+            "type": "tok",
+            "named": false
+          }
+        ]
+      },
       "type": {
         "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": "_",
-            "named": false
-          },
           {
             "type": "type",
             "named": true
@@ -619,6 +680,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "opargs",
           "named": true
         },
         {

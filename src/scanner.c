@@ -1,7 +1,9 @@
-#include <stdio.h>
 #include <tree_sitter/parser.h>
-#include <ctype.h>
 
+// #include <stdio.h>   // uncomment if you re-enable the debug fprintf calls below
+
+// Token types. THE ORDER MUST MATCH the `externals` array in grammar.js:
+//     externals: $ => [ $._dot, $._dotdot, $._dotdotdot, $._enddot ]
 enum TokenType {
     DOT,
     DOTDOT,
@@ -9,155 +11,162 @@ enum TokenType {
     ENDDOT
 };
 
-// --- --- --- Need to define 5 functions
 
-// This function should create your scanner object.
-// It will only be called once anytime your language is set on a parser.
-// Often, you will want to allocate memory on the heap and return a pointer to it.
-// If your external scanner doesn’t need to maintain any state, it’s ok to return NULL.
-void * tree_sitter_anubis_external_scanner_create() {
-    return NULL;
+// --- --- --- Helpers
+//
+// NOTE: all helpers are `static`. Tree-sitter links many grammars into a single
+// binary (e.g. nvim-treesitter); non-static helpers with generic names like
+// `commit` will collide at link time.
+
+// Whitespace test.
+// We cannot use isspace() from <ctype.h>: lexer->lookahead is an int32_t Unicode
+// code point, and isspace() is only defined for values representable as
+// `unsigned char` (plus EOF). Anything else is undefined behaviour.
+static inline bool is_ws(int32_t c) {
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\f' || c == '\v';
 }
 
-// This function should free any memory used by your scanner.
-// It is called once when a parser is deleted or assigned a different language.
-// It receives as an argument the same pointer that was returned from the create function.
-// If your create function didn’t allocate any memory, this function can be a noop.
-void tree_sitter_anubis_external_scanner_destroy(void *payload) { }
+// End of input. Tree-sitter reports EOF as a lookahead of 0.
+static inline bool is_eof(int32_t c) {
+    return c == 0;
+}
 
-
-// This function should copy the complete state of your scanner into a given byte buffer,
-// and return the number of bytes written.
-// The function is called every time the external scanner successfully recognizes a token.
-// It receives a pointer to your scanner and a pointer to a buffer.
-// The maximum number of bytes that you can write is given by the TREE_SITTER_SERIALIZATION_BUFFER_SIZE constant,
-// defined in the tree_sitter/parser.h header file.
-//
-// The data that this function writes will ultimately be stored in the syntax tree so
-// that the scanner can be restored to the right state when handling edits or ambiguities.
-// For your parser to work correctly, the serialize function must store its entire state,
-// and deserialize must restore the entire state.
-// For good performance, you should design your scanner
-// so that its state can be serialized as quickly and compactly as possible.
-unsigned tree_sitter_anubis_external_scanner_serialize(
-    void *payload,
-    char *buffer
-) { return 0; }
-
-
-// This function should restore the state of your scanner based the bytes
-// that were previously written by the serialize function.
-// It is called with a pointer to your scanner,
-// a pointer to the buffer of bytes, and the number of bytes that should be read.
-void tree_sitter_anubis_external_scanner_deserialize(
-    void *payload,
-    const char *buffer,
-    unsigned length
-) { }
-
-
-// This function is responsible for recognizing external tokens.
-// It should return true if a token was recognized, and false otherwise.
-// It is called with a “lexer” struct with the following fields:
-//
-// int32_t lookahead
-//  The current next character in the input stream, represented as a 32-bit unicode code point.
-//
-// TSSymbol result_symbol
-//  The symbol that was recognized.
-//  Your scan function should assign to this field one of the values from the TokenType enum, described above.
-//
-// void (*advance)(TSLexer *, bool skip)
-//  A function for advancing to the next character.
-//  If you pass true for the second argument, the current character will be treated as whitespace.
-//
-// void (*mark_end)(TSLexer *)
-//  A function for marking the end of the recognized token.
-//  This allows matching tokens that require multiple characters of lookahead.
-//  By default (if you don’t call mark_end),
-//  any character that you moved past using the advance function will be included in the size of the token.
-//  But once you call mark_end, then any later calls to advance will not increase the size of the returned token.
-//  You can call mark_end multiple times to increase the size of the token.
-//
-// uint32_t (*get_column)(TSLexer *)
-//  (Experimental) A function for querying the current column position of the lexer.
-//  It returns the number of unicode code points (not bytes) since the start of the current line.
-//
-// bool (*is_at_included_range_start)(TSLexer *)
-//  A function for checking if the parser has just skipped some characters in the document.
-//  When parsing an embedded document using the ts_parser_set_included_ranges function (described in the multi-language document section),
-//  your scanner may want to apply some special behavior when moving to a disjoint part of the document.
-//  For example, in EJS documents, the JavaScript parser uses this function to enable inserting automatic semicolon tokens in between the code directives, delimited by <% and %>.
-
-int32_t get_la(TSLexer* lexer){
+// Read the current lookahead character without consuming it.
+static inline int32_t get_la(TSLexer *lexer) {
     int32_t c = lexer->lookahead;
-    //fprintf(stderr, "  Read at %d: '%c'\n", lexer->get_column(lexer), (char)c);
+    // fprintf(stderr, "  Read at %d: '%c'\n", lexer->get_column(lexer), (char)c);
     return c;
 }
 
-void commit(TSLexer* lexer){
+// Consume the current character and include it in the token being built.
+static inline void commit(TSLexer *lexer) {
     lexer->advance(lexer, false);
     lexer->mark_end(lexer);
 }
 
+
+// --- --- --- The five functions required by the external scanner interface
+
+// Create the scanner object. Called once when the language is set on a parser.
+// This scanner is stateless, so there is nothing to allocate.
+void *tree_sitter_anubis_external_scanner_create(void) {
+    return NULL;
+}
+
+// Free any memory used by the scanner. Nothing was allocated, so this is a noop.
+void tree_sitter_anubis_external_scanner_destroy(void *payload) {
+    (void)payload;
+}
+
+// Serialize the complete scanner state into `buffer`, returning the number of
+// bytes written (max TREE_SITTER_SERIALIZATION_BUFFER_SIZE). Stateless: 0 bytes.
+unsigned tree_sitter_anubis_external_scanner_serialize(
+    void *payload,
+    char *buffer
+) {
+    (void)payload;
+    (void)buffer;
+    return 0;
+}
+
+// Restore the scanner state from bytes previously written by serialize().
+// Stateless: nothing to restore.
+void tree_sitter_anubis_external_scanner_deserialize(
+    void *payload,
+    const char *buffer,
+    unsigned length
+) {
+    (void)payload;
+    (void)buffer;
+    (void)length;
+}
+
+// Recognize external tokens. Returns true if a token was recognized.
+//
+// Dot disambiguation, mirroring grammar.y:
+//   ".<space>" or ".<EOF>"  -> ENDDOT   (end of paragraph; cf. `EndDot: yy__enddot | yy__dot yy__eof`)
+//   "..."                   -> DOTDOTDOT
+//   ".."                    -> DOTDOT
+//   ".>"                    -> not ours; let the main lexer take `dotsup`
+//   "."                     -> DOT      (binary field-access operator)
 bool tree_sitter_anubis_external_scanner_scan(
     void *payload,
     TSLexer *lexer,
     const bool *valid_symbols
 ) {
+    (void)payload;
 
+    // Nothing we produce is expected here.
+    if (!(valid_symbols[DOT]
+          || valid_symbols[DOTDOT]
+          || valid_symbols[DOTDOTDOT]
+          || valid_symbols[ENDDOT])) {
+        return false;
+    }
 
-    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-    if(
-            valid_symbols[DOT]
-            || valid_symbols[DOTDOT]
-            || valid_symbols[DOTDOTDOT]
-            || valid_symbols[ENDDOT]
-      ){
-        //fprintf(stderr, "Lexer called at %d with LA '%c'\n", lexer->get_column(lexer), (char)lexer->lookahead);
+    // fprintf(stderr, "Lexer called at %d with LA '%c'\n", lexer->get_column(lexer), (char)lexer->lookahead);
 
-        // Skip spaces
-        while(isspace(lexer->lookahead)){ lexer->advance(lexer, true); }
+    // Skip leading whitespace (passing `true` marks it as extra, not part of the token).
+    while (is_ws(lexer->lookahead)) {
+        lexer->advance(lexer, true);
+    }
 
-        int32_t c = get_la(lexer);
+    int32_t c = get_la(lexer);
 
-        if(c=='.'){
-            // We read a dot, "commit it", then read the next char
+    // Everything we produce starts with a dot.
+    if (c != '.') {
+        return false;
+    }
+
+    // Consume the first dot, then look at what follows.
+    commit(lexer);
+    c = get_la(lexer);
+
+    // ".<space>" or ".<EOF>" -> ENDDOT.
+    // The EOF case matters: a file whose final paragraph ends with '.' and has no
+    // trailing newline must still terminate. grammar.y spells this out explicitly
+    // as `EndDot: yy__enddot | yy__dot yy__eof`.
+    if ((is_ws(c) || is_eof(c)) && valid_symbols[ENDDOT]) {
+        // fprintf(stderr, "returns ENDDOT\n");
+        lexer->result_symbol = ENDDOT;
+        return true;
+    }
+
+    // ".." or "..."
+    if (c == '.') {
+        commit(lexer);
+        c = get_la(lexer);
+
+        if (c == '.' && valid_symbols[DOTDOTDOT]) {
+            // fprintf(stderr, "returns DOTDOTDOT\n");
             commit(lexer);
-            c = get_la(lexer);
-            // It's a space: return ENDDOT
-            if(isspace(c) && valid_symbols[ENDDOT]){
-                //fprintf(stderr, "returns ENDDOT\n");
-                lexer->result_symbol = ENDDOT;
-                return true;
-            }
-            // It's another dot: check for DOTDOT and DOTDOTDOT
-            else if(c=='.'){
-                // Commit the dot and read the next char
-                commit(lexer);
-                c = get_la(lexer);
-                if( c=='.' && valid_symbols[DOTDOTDOT]){
-                    //fprintf(stderr, "returns DOTDOTDOT\n");
-                    commit(lexer);
-                    lexer->result_symbol = DOTDOTDOT;
-                    return true;
-                } else if(valid_symbols[DOTDOT]) {
-                    //fprintf(stderr, "returns DOTDOT\n");
-                    lexer->result_symbol = DOTDOT;
-                    return true;
-                }
-            }
-            // It's '>': stop so we don't match .>
-            else if(c=='>'){ return false; }
-            // Else, it's a DOT
-            else if(valid_symbols[DOT]){
-                //fprintf(stderr, "returns DOT\n");
-                lexer->result_symbol = DOT;
-                return true;
-            }
-        } else { return false; }
-    } // End if DOT DOTDOT DOTDOTDOT ENDDOT
-    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+            lexer->result_symbol = DOTDOTDOT;
+            return true;
+        }
 
-} // End scan function
+        if (valid_symbols[DOTDOT]) {
+            // fprintf(stderr, "returns DOTDOT\n");
+            lexer->result_symbol = DOTDOT;
+            return true;
+        }
+
+        // We consumed ".." but neither token is valid here.
+        return false;
+    }
+
+    // ".>" is the `dotsup` operator, handled by the main lexer -- back off.
+    if (c == '>') {
+        return false;
+    }
+
+    // Plain "." -> DOT.
+    if (valid_symbols[DOT]) {
+        // fprintf(stderr, "returns DOT\n");
+        lexer->result_symbol = DOT;
+        return true;
+    }
+
+    // A dot was consumed but DOT is not valid in this state.
+    return false;
+}
 
