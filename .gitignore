@@ -104,3 +104,6 @@ dist
 .tern-port
 target/
 build/
+/target
+/build
+node_modules/
