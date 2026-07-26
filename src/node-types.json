@@ -1,5 +1,10 @@
 [
   {
+    "type": "_",
+    "named": false,
+    "fields": {}
+  },
+  {
     "type": "absminus",
     "named": true,
     "fields": {}
@@ -12,6 +17,7 @@
   {
     "type": "anubis_source",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -1264,7 +1270,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "define",

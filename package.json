@@ -1,45 +1,48 @@
 {
   "name": "tree-sitter-anubis",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Anubis grammar for tree-sitter",
-  "main": "bindings/node",
-  "keywords": [
-    "parser",
-    "anubis"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "node-gyp rebuild"
-  },
-  "author": "Matthieu Herrmann",
-  "license": "MIT",
-  "dependencies": {
-    "nan": "^2.14.2"
-  },
-  "devDependencies": {
-    "tree-sitter-cli": "^0.20.0"
-  },
-  "tree-sitter": [
-    {
-      "scope": "source.anubis",
-      "file-types": [
-        "anubis"
-      ],
-      "highlights": [
-        "queries/highlights.scm"
-      ]
-    }
-  ],
-  "gypfile": true,
-  "directories": {
-    "test": "test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HerrmannM/tree-sitter-anubis.git"
   },
-  "bugs": {
-    "url": "https://github.com/HerrmannM/tree-sitter-anubis/issues"
+  "license": "MIT",
+  "author": {
+    "name": "Matthieu Herrmann"
   },
-  "homepage": "https://github.com/HerrmannM/tree-sitter-anubis#readme"
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "keywords": ["incremental", "parsing", "tree-sitter", "anubis"],
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**",
+    "*.wasm"
+  ],
+  "dependencies": {
+    "node-addon-api": "^8.5.0",
+    "node-gyp-build": "^4.8.4"
+  },
+  "devDependencies": {
+    "prebuildify": "^6.0.1",
+    "tree-sitter": "^0.25.0",
+    "tree-sitter-cli": "^0.26.11"
+  },
+  "peerDependencies": {
+    "tree-sitter": "^0.25.0"
+  },
+  "peerDependenciesMeta": {
+    "tree-sitter": { "optional": true }
+  },
+  "scripts": {
+    "install": "node-gyp-build",
+    "prestart": "tree-sitter build --wasm",
+    "start": "tree-sitter playground",
+    "test": "node --test bindings/node/*_test.js"
+  }
 }
+

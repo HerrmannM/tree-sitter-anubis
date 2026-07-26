@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <tree_sitter/parser.h>
+#include <ctype.h>
 
 enum TokenType {
     DOT,

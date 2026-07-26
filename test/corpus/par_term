@@ -145,6 +145,7 @@ define A a = a(b, (c, d)).
 )
 
 
+
 ================================================================================
 Lambda
 ================================================================================
@@ -157,7 +158,8 @@ define A->A id = (A a)|->a.
         (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
         (identifier)
         (term (lambda
-            (operand (type (ty_name)) (identifier))
+            (fargs
+                (operand (type (ty_name)) (identifier)))
             (mapsto)
             (term (identifier))
         ))
@@ -177,13 +179,16 @@ define A->A id = (_ a)|-f->a.
         (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
         (identifier)
         (term (lambda
-            (operand (identifier))
+            (fargs
+                (operand (identifier)))
             (mapsto (identifier))
             (term (identifier))
         ))
         (par_end)
     )
 )
+
+
 
 ================================================================================
 KW: delegate term, term.
