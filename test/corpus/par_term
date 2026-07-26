@@ -267,3 +267,116 @@ define A a = delegate (term) term, term.
         (term
           (identifier))))
     (par_end)))
+
+
+================================================================================
+Empty argument list
+================================================================================
+
+define Int f() = 0.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (term (lit_integer))
+        (par_end)
+    )
+)
+
+================================================================================
+Arguments without comma separator
+================================================================================
+
+define Int f(Int a Int b) = a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (opargs
+            (operand (type (ty_name)) (identifier))
+            (operand (type (ty_name)) (identifier)))
+        (term (identifier))
+        (par_end)
+    )
+)
+
+================================================================================
+Lambda, multiple arguments without comma
+================================================================================
+
+define A->A g = (A a B b)|->a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_fun (type (ty_name)) (arrow) (type (ty_name)) ))
+        (identifier)
+        (term (lambda
+            (fargs
+                (farg (type (ty_name)) (identifier))
+                (farg (type (ty_name)) (identifier)))
+            (mapsto)
+            (term (identifier))
+        ))
+        (par_end)
+    )
+)
+
+================================================================================
+Lazy argument
+================================================================================
+
+define Int f(lazy Int a) = a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (opargs
+            (operand (lazy) (type (ty_name)) (identifier)))
+        (term (identifier))
+        (par_end)
+    )
+)
+
+================================================================================
+Sized argument
+================================================================================
+
+define Int f(Int a[10]) = a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (opargs
+            (operand (type (ty_name)) (identifier) (term (lit_integer))))
+        (term (identifier))
+        (par_end)
+    )
+)
+
+
+================================================================================
+Lazy sized argument
+================================================================================
+
+define Int f(lazy Int a[10]) = a.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_def
+        (type (ty_name))
+        (identifier)
+        (opargs
+            (operand (lazy) (type (ty_name)) (identifier) (term (lit_integer))))
+        (term (identifier))
+        (par_end)
+    )
+)

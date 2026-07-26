@@ -3871,6 +3871,10 @@
         }
       ]
     },
+    "lazy": {
+      "type": "STRING",
+      "value": "lazy"
+    },
     "operand": {
       "type": "SEQ",
       "members": [
@@ -3881,13 +3885,8 @@
               "type": "FIELD",
               "name": "lazy",
               "content": {
-                "type": "ALIAS",
-                "content": {
-                  "type": "STRING",
-                  "value": "lazy"
-                },
-                "named": false,
-                "value": "tok"
+                "type": "SYMBOL",
+                "name": "lazy"
               }
             },
             {

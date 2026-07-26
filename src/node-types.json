@@ -635,8 +635,8 @@
         "required": false,
         "types": [
           {
-            "type": "tok",
-            "named": false
+            "type": "lazy",
+            "named": true
           }
         ]
       },
@@ -1365,6 +1365,10 @@
   {
     "type": "is",
     "named": false
+  },
+  {
+    "type": "lazy",
+    "named": true
   },
   {
     "type": "out_comment",

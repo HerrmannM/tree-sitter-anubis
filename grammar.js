@@ -495,9 +495,13 @@ module.exports = grammar({
           repeat(seq(optional(alias(",", "tok")), $.farg))
         ),
 
+
+        // Lazy node:
+        lazy: $ => "lazy",
+
         // OpArg: lazy? Type sym ( '[' Term ']' )?   -- collapses all four productions
         operand: $ => seq(
-          optional(field("lazy", alias("lazy", "tok"))),
+          optional(field("lazy", $.lazy)),
           field("type", $.type),
           field("arg",  $.identifier),
           optional(field("size", seq(alias("[", "tok"), $.term, alias("]", "tok"))))
