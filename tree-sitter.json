@@ -8,7 +8,7 @@
       "scope": "source.anubis",
       "file-types": [ "anubis" ],
       "injection-regex": "^anubis$",
-      "class-name": "TreeSitterAnubis"
+      "class-name": "TreeSitterAnubis",
       "highlights": ["queries/highlights.scm"]
     }
   ],
