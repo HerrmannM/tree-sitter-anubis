@@ -1,5 +1,10 @@
 [
   {
+    "type": "_",
+    "named": false,
+    "fields": {}
+  },
+  {
     "type": "absminus",
     "named": true,
     "fields": {}
@@ -12,6 +17,7 @@
   {
     "type": "anubis_source",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -339,6 +345,30 @@
     }
   },
   {
+    "type": "builtin",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "builtin_kw",
+          "named": true
+        },
+        {
+          "type": "term",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "builtin_kw",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "carret",
     "named": true,
     "fields": {}
@@ -463,6 +493,36 @@
     "fields": {}
   },
   {
+    "type": "farg",
+    "named": true,
+    "fields": {
+      "arg": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "fargs",
     "named": true,
     "fields": {},
@@ -471,11 +531,7 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "type",
+          "type": "farg",
           "named": true
         }
       ]
@@ -570,6 +626,21 @@
     "fields": {}
   },
   {
+    "type": "opargs",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "operand",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "operand",
     "named": true,
     "fields": {
@@ -583,14 +654,34 @@
           }
         ]
       },
+      "lazy": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "lazy",
+            "named": true
+          }
+        ]
+      },
+      "size": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "term",
+            "named": true
+          },
+          {
+            "type": "tok",
+            "named": false
+          }
+        ]
+      },
       "type": {
         "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": "_",
-            "named": false
-          },
           {
             "type": "type",
             "named": true
@@ -613,6 +704,10 @@
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "opargs",
           "named": true
         },
         {
@@ -825,6 +920,10 @@
         },
         {
           "type": "binary_op",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -1264,7 +1363,12 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
+  },
+  {
+    "type": "cover",
+    "named": false
   },
   {
     "type": "define",
@@ -1295,6 +1399,10 @@
     "named": false
   },
   {
+    "type": "lazy",
+    "named": true
+  },
+  {
     "type": "out_comment",
     "named": true
   },
@@ -1304,6 +1412,10 @@
   },
   {
     "type": "read",
+    "named": false
+  },
+  {
+    "type": "serialize",
     "named": false
   },
   {
@@ -1356,6 +1468,14 @@
   },
   {
     "type": "typecast",
+    "named": false
+  },
+  {
+    "type": "uncover",
+    "named": false
+  },
+  {
+    "type": "unserialize",
     "named": false
   },
   {

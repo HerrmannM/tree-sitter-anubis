@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "anubis",
+      "camelcase": "Anubis",
+      "title": "Anubis",
+      "scope": "source.anubis",
+      "file-types": [ "anubis" ],
+      "injection-regex": "^anubis$",
+      "class-name": "TreeSitterAnubis",
+      "highlights": ["queries/highlights.scm"]
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Anubis grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "HerrmannM",
+        "url": ""
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/HerrmannM/tree-sitter-anubis",
+      "funding": ""
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "java": false,
+    "node": true,
+    "python": false,
+    "rust": true,
+    "swift": false,
+    "zig": false
+  }
+}
