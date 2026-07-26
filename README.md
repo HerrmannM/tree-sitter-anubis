@@ -45,7 +45,7 @@ mkdir -p ~/.config/nvim/queries/anubis
 cp queries/highlights.scm ~/.config/nvim/queries/anubis/highlights.scm
 ```
 
-**3. Register the `.anubis` filetype**, in your `init.lua`:
+**3. Register the `.anubis` filetype**, in your `init.lua` (~/.config/nvim/init.lua):
 ```lua
 vim.filetype.add({ extension = { anubis = "anubis" } })
 ```
