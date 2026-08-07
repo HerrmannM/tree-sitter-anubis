@@ -38,11 +38,11 @@
 ; --- Types ------------------------------------------------------------------
 
 (type (ty_name)  @type)
-(type (ty_pname) @type)
+(type (ty_pname) @type.parameter)
 (type "tok"      @type)
 
 (type_decl (ty_name)  @type)
-(type_decl (ty_pname) @type)
+(type_decl (ty_pname) @type.parameter)
 
 ; Named arguments inside function types -- dimmed, as in the original file.
 ; Change to @variable.parameter if you would rather see them as parameters.
@@ -95,6 +95,15 @@
 (conditional ["since" "tok"] @keyword.conditional)
 
 
+; --- Constructors in pattern position ---------------------------------------
+
+(case pattern: (term (identifier) @constructor))
+(case pattern: (term (apply fun: (term (identifier) @constructor))))
+
+(conditional pattern: (term (identifier) @constructor))
+(conditional pattern: (term (apply fun: (term (identifier) @constructor))))
+
+
 ; --- Keywords and built-in operations ---------------------------------------
 
 (with ["with" "tok"] @keyword)
@@ -127,7 +136,7 @@
 (par_execute "command" @string.special)
 
 (par_def ["define" "="] @keyword)
-(par_def (identifier) @function)
+(par_def (identifier) @function . (opargs))
 (par_def "fun" @punctuation.bracket)
 
 (par_type ["type" "tok"] @keyword.type)

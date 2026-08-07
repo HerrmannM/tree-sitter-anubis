@@ -1,0 +1,51 @@
+
+================================================================================
+Type alternatives without comma separator
+================================================================================
+
+type A($V):
+  x(Int a)
+  y
+  .
+  Some comment text here.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_type
+        (type_decl (ty_name) (ty_pname))
+        (par_type_alt (identifier) (par_type_alt_factor (type (ty_name)) (identifier)))
+        (par_type_alt (identifier))
+        (par_end)
+    )
+    (out_comment)
+)
+
+================================================================================
+Type alternatives, multi-factor, with commas
+================================================================================
+
+type AlterResult($K, $V):
+  unchanged,
+  inserted(WBT($K, $V) tree),
+  replaced(WBT($K, $V) tree, $V original_value),
+  removed(WBT($K, $V) tree, $V original_value)
+  .
+  Trailing prose after the paragraph.
+
+--------------------------------------------------------------------------------
+(anubis_source
+    (par_type
+        (type_decl (ty_name) (ty_pname) (ty_pname))
+        (par_type_alt (identifier))
+        (par_type_alt (identifier)
+            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier)))
+        (par_type_alt (identifier)
+            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier))
+            (par_type_alt_factor (type (ty_pname)) (identifier)))
+        (par_type_alt (identifier)
+            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier))
+            (par_type_alt_factor (type (ty_pname)) (identifier)))
+        (par_end)
+    )
+    (out_comment)
+)
