@@ -88,6 +88,9 @@
 ; Lambda introducer `)|->` and `)|-name->`
 (mapsto) @keyword.function
 
+; Starting parenthesis of lambda, high prority to beat 'bracket'
+(lambda "(" @keyword.function (#set! priority 110))
+
 
 ; --- Types --------------------------------------------------------------------
 
