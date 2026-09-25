@@ -25,5 +25,8 @@ end
 
 vim.b.undo_ftplugin = undo
 
+-- Map go to definition
+vim.keymap.set("n", "gd", require("anubis.refs").goto_definition, { buffer = true })
+
 -- Tree-sitter highlighting and syntax diagnostics (see lua/anubis/init.lua).
 anubis.attach(0)

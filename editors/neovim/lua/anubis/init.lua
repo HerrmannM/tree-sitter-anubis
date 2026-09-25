@@ -18,6 +18,8 @@ local S = vim.diagnostic.severity
 local ns = vim.api.nvim_create_namespace("anubis")
 
 M.defaults = {
+  references = true,   -- highlight local definition + uses under the cursor
+
   -- Compile the parser automatically when it is missing or older than its
   -- sources (src/parser.c, src/scanner.c), before it is first loaded.
   auto_build = true,
@@ -130,6 +132,9 @@ end
 -- standard groups. `default = true`: a definition of the same group by the
 -- colorscheme or the user wins. Set again on ColorScheme (`:hi clear` drops them).
 local HIGHLIGHTS = {
+  ["AnubisDefinition"] = "LspReferenceWrite",
+  ["AnubisReference"]  = "LspReferenceRead",
+  --
   ["@constructor.success.anubis"] = "DiagnosticOk",
   ["@constructor.failure.anubis"] = "DiagnosticError",
   ["@keyword.todo.anubis"] = "DiagnosticWarn",
@@ -258,6 +263,11 @@ function M.attach(buf)
     })
     schedule_refresh(buf)
   end
+
+  if M.config.references then
+    require("anubis.refs").attach(buf)
+  end
+
 end
 
 return M
