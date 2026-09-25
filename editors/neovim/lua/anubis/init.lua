@@ -2,7 +2,7 @@
 --
 --   require("anubis").setup(opts)   optional, call once at startup
 --   require("anubis").attach(buf)   called by ftplugin/anubis.lua
---   require("anubis").build()       compile the parser (needs a C compiler)
+--   require("anubis").build()       compile the parser now (normally automatic)
 --
 -- Features:
 --   * tree-sitter highlighting (optional, if no other plugin starts it)
@@ -20,6 +20,19 @@ local function hl_get(name)
 end
 
 M.defaults = {
+  -- Compile the parser automatically when it is missing or older than its
+  -- sources (src/parser.c, src/scanner.c), before it is first loaded.
+  auto_build = true,
+
+  -- Developer warnings: grammar.js newer than src/parser.c (run
+  -- `tree-sitter generate`), queries newer than their generated Neovim copies
+  -- (run `node scripts/sync-queries.js`). Off by default: based on file
+  -- times, which a fresh git checkout does not order meaningfully.
+  dev = false,
+
+  -- Fold each paragraph and each block of prose (files open unfolded).
+  folding = false,
+
   -- Start tree-sitter highlighting in Anubis buffers. Set to false if another
   -- plugin already does it (e.g. nvim-treesitter's highlight module).
   highlight = true,
@@ -193,18 +206,79 @@ function M.build()
   return require("anubis.build")(repo_root())
 end
 
+-- Modification time in seconds, or nil if the file does not exist.
+local function mtime(file)
+  local st = vim.uv.fs_stat(file)
+  return st and (st.mtime.sec + st.mtime.nsec * 1e-9) or nil
+end
+
+-- True if `target` is missing or older than any existing source.
+local function older(target, sources)
+  local t = mtime(target)
+  if not t then return true end
+  for _, src in ipairs(sources) do
+    local m = mtime(src)
+    if m and m > t then return true end
+  end
+  return false
+end
+
+local parser_loaded = false   -- the .so is loaded: a rebuild needs a restart
+
+-- Rebuild the parser if needed. Runs before the parser is first loaded, so
+-- the fresh one is used right away.
+local function ensure_parser()
+  if not M.config.auto_build then return end
+  local root = repo_root()
+  local so = root .. "/editors/neovim/parser/anubis.so"
+  if not older(so, { root .. "/src/parser.c", root .. "/src/scanner.c" }) then return end
+  if mtime(root .. "/src/parser.c") == nil then return end   -- nothing to build from
+
+  vim.notify("anubis: compiling the tree-sitter parser...", vim.log.levels.INFO)
+  vim.cmd.redraw()
+  if M.build() and parser_loaded then
+    vim.notify("anubis: parser rebuilt, restart Neovim to use it", vim.log.levels.WARN)
+  end
+end
+
+local dev_checked = false
+local function dev_checks()
+  if not M.config.dev or dev_checked then return end
+  dev_checked = true
+  local root = repo_root()
+  local msgs = {}
+  if older(root .. "/src/parser.c", { root .. "/grammar.js" }) then
+    msgs[#msgs + 1] = "grammar.js is newer than src/parser.c: run `tree-sitter generate`"
+  end
+  for _, name in ipairs({ "highlights.scm", "locals.scm", "folds.scm" }) do
+    local gen = root .. "/editors/neovim/queries/anubis/" .. name
+    if older(gen, { root .. "/queries/" .. name,
+                    root .. "/editors/neovim/queries-overlay/" .. name }) then
+      msgs[#msgs + 1] = name .. " changed: run `node scripts/sync-queries.js`"
+    end
+  end
+  if #msgs > 0 then
+    vim.notify("anubis:\n" .. table.concat(msgs, "\n"), vim.log.levels.WARN)
+  end
+end
+
 -- Parsers already attached to (weak keys: a reloaded buffer gets a new parser).
 local attached = setmetatable({}, { __mode = "k" })
 
 function M.attach(buf)
   if buf == nil or buf == 0 then buf = vim.api.nvim_get_current_buf() end
 
+  dev_checks()
+  ensure_parser()
+
   local ok, parser = pcall(vim.treesitter.get_parser, buf, "anubis")
   if not ok or not parser then
-    vim.notify_once("anubis: tree-sitter parser not found."
-      .. " Run :lua require('anubis').build() and restart Neovim.", vim.log.levels.WARN)
+    vim.notify_once("anubis: tree-sitter parser not available"
+      .. " (needs src/parser.c and a C compiler, see editors/neovim/README.md)",
+      vim.log.levels.WARN)
     return
   end
+  parser_loaded = true
   if attached[parser] then return end
   attached[parser] = true
 

@@ -25,7 +25,7 @@ const CANONICAL = "queries";
 const TARGETS = [
   {
     name: "neovim",
-    out: "editors/neovim/queries/anubis",   // Neovim wants queries/<language>/
+    out: "editors/neovim/queries/anubis",   // Neovim reads queries/<language>/
     overlay: "editors/neovim/queries-overlay",
     transform: (text) => text,
   },

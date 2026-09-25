@@ -1,106 +1,100 @@
 # Anubis for Neovim
 
-Filetype detection, tree-sitter highlighting, syntax diagnostics (errors,
-missing end dots, stray column-0 text) and emphasis for key tokens.
+Highlighting, syntax diagnostics (errors, missing end dots, stray column-0
+text), folding and spell checking for Anubis files.
 
-## Requirements
+Requires Neovim 0.12 and a C compiler (`cc`, or `$CC`): the parser is compiled
+automatically the first time an `.anubis` file is opened, and again whenever
+its sources change.
 
-- Neovim 0.12+ for `vim.pack`; 0.10+ for the manual install
-  (0.11+ if the parser was generated with tree-sitter ≥ 0.25, ABI 15)
-- A C compiler (`cc`, or set `$CC`)
+## Install
 
-## Install with vim.pack (Neovim 0.12+)
+The Neovim files live in `editors/neovim/` of the repository, so that folder
+is what goes on the runtime path.
 
-In `init.lua`. The autocommand must come before `vim.pack.add`, so that it
-also runs on the first install:
+From GitHub, in `init.lua`:
 
 ```lua
--- Build the parser on install and update
-vim.api.nvim_create_autocmd("PackChanged", { callback = function(ev)
-  local d = ev.data
-  if d.spec.name == "tree-sitter-anubis" and (d.kind == "install" or d.kind == "update") then
-    dofile(d.path .. "/editors/neovim/lua/anubis/build.lua")(d.path)
-  end
-end })
-
--- The Neovim files are in a subfolder: load it instead of the repository root
 vim.pack.add({ "https://github.com/HerrmannM/tree-sitter-anubis" }, {
   load = function(p) vim.opt.rtp:append(p.path .. "/editors/neovim") end,
 })
-
-require("anubis").setup()   -- required here: it registers the .anubis filetype
+require("anubis").setup()   -- also registers the .anubis filetype
 ```
 
-Update with `:lua vim.pack.update()`, then restart Neovim to load the
-rebuilt parser.
+From a local clone (to work on the grammar), instead:
 
-## Manual install (no plugin manager)
+```lua
+vim.opt.rtp:prepend(vim.fn.expand("~/dev/tree-sitter-anubis/editors/neovim"))
+require("anubis").setup()
+```
 
-1. Clone the repository anywhere, e.g. `~/src/tree-sitter-anubis`.
-2. Put `editors/neovim` on the runtime path, either way:
-   - at the top of `init.lua`:
-     `vim.opt.rtp:append(vim.fn.expand("~/src/tree-sitter-anubis/editors/neovim"))`
-   - or symlink it as a package, loaded automatically at startup:
-     `ln -s ~/src/tree-sitter-anubis/editors/neovim ~/.local/share/nvim/site/pack/anubis/start/anubis`
-3. In Neovim, run `:lua require("anubis").build()`, then restart.
+Or both: the local clone when present, GitHub otherwise:
 
-To update: `git pull`, then step 3 again. `setup()` is optional here.
+```lua
+local anubis = vim.fn.expand("~/dev/tree-sitter-anubis")
+if vim.uv.fs_stat(anubis) then
+  vim.opt.rtp:prepend(anubis .. "/editors/neovim")
+else
+  vim.pack.add({ "https://github.com/HerrmannM/tree-sitter-anubis" }, {
+    load = function(p) vim.opt.rtp:append(p.path .. "/editors/neovim") end,
+  })
+end
+require("anubis").setup()
+```
 
-## Other plugin managers
+## Update
 
-Add `editors/neovim` to the runtime path, call `require("anubis").setup()`,
-and run `require("anubis").build()` as the plugin's build step.
+- From GitHub: `:lua vim.pack.update()` updates all your `vim.pack` plugins.
+  Review the changes, `:write` to apply, then restart Neovim.
+- Local clone: `git pull` (or `tree-sitter generate` after editing the
+  grammar), then restart Neovim.
 
-## Configuration
+The parser is recompiled on the next start whenever it is older than its
+sources.
 
-`setup()` is optional. Defaults:
+## Options
+
+Passed to `setup()`; all optional. Defaults:
 
 ```lua
 require("anubis").setup({
-  highlight = true,                 -- start tree-sitter highlighting
+  auto_build = true,   -- compile the parser when missing or outdated
+  dev = false,         -- warn when generated files are stale (grammar work)
+  folding = false,     -- one fold per paragraph
+  highlight = true,    -- start tree-sitter highlighting
   diagnostics = {
     enabled = true,
     syntax = vim.diagnostic.severity.ERROR,     -- false to disable
     stray_text = vim.diagnostic.severity.WARN,  -- false to disable
   },
-  emphasis = {                      -- false to disable all
-    ["@keyword.function"] = { bold = true },    -- set one to false to skip it
-    -- see lua/anubis/init.lua for the full list
+  emphasis = {         -- bold/italic on top of your colorscheme; false to disable
+    ["@keyword.function"] = { bold = true },    -- full list in lua/anubis/init.lua
   },
 })
 ```
 
-Emphasis only adds bold, italic or undercurl; colours come from your
-colorscheme. Diagnostics appear when you leave insert mode (Neovim's default,
-see `update_in_insert` in `:h vim.diagnostic.config()`).
+Anubis buffers use 2-space indentation. To change that, or anything else
+per buffer, use `~/.config/nvim/after/ftplugin/anubis.lua`, which runs after
+the plugin:
+
+```lua
+vim.opt_local.shiftwidth = 4
+```
 
 ## Troubleshooting
 
-- `:checkhealth vim.treesitter`: is the `anubis` parser found?
-- `:InspectTree`: the syntax tree, including `ERROR` / `MISSING` nodes
-- `:Inspect`: which capture colours the token under the cursor
+- `:lua =vim.api.nvim_get_runtime_file("parser/anubis.*", true)` must list only
+  this plugin's parser: an older one elsewhere (e.g. in `~/.config/nvim/parser/`)
+  would be used instead. Same for `queries/anubis/*`.
+- `:lua require("anubis").build()` recompiles the parser by hand.
+- `:InspectTree` shows the tree; `:Inspect` shows the capture under the cursor.
 
-## Folding
+## Editing the queries
 
-Each paragraph, and each block of prose between paragraphs, can be folded:
-
-```lua
-vim.api.nvim_create_autocmd("FileType", { pattern = "anubis", callback = function()
-  vim.wo.foldmethod = "expr"
-  vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-end })
-```
-
-## Queries
-
-`queries/anubis/` is generated: never edit it. Each file is the canonical
-`queries/<name>.scm` of the repository followed by the Neovim-only
-`queries-overlay/<name>.scm` (spell checking, folds, ...). The overlay comes
-last, so its patterns win.
-
-From the repository root:
+`editors/neovim/queries/anubis/` is generated from the repository's
+`queries/*.scm` plus the Neovim-only `editors/neovim/queries-overlay/`.
+Never edit it; after changing the queries, run from the repository root:
 
 ```sh
-node scripts/sync-queries.js           # regenerate after editing queries
-node scripts/sync-queries.js --check   # CI: fails if out of date
+node scripts/sync-queries.js
 ```
