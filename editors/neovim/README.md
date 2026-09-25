@@ -18,14 +18,13 @@ From GitHub, in `init.lua`:
 vim.pack.add({ "https://github.com/HerrmannM/tree-sitter-anubis" }, {
   load = function(p) vim.opt.rtp:append(p.path .. "/editors/neovim") end,
 })
-require("anubis").setup()   -- also registers the .anubis filetype
+require("anubis").setup()   -- optional: only needed to change options
 ```
 
 From a local clone (to work on the grammar), instead:
 
 ```lua
 vim.opt.rtp:prepend(vim.fn.expand("~/dev/tree-sitter-anubis/editors/neovim"))
-require("anubis").setup()
 ```
 
 Or both: the local clone when present, GitHub otherwise:
@@ -39,7 +38,6 @@ else
     load = function(p) vim.opt.rtp:append(p.path .. "/editors/neovim") end,
   })
 end
-require("anubis").setup()
 ```
 
 ## Update
@@ -54,7 +52,7 @@ sources.
 
 ## Options
 
-Passed to `setup()`; all optional. Defaults:
+Passed to `setup()`, which is optional: without it, the defaults apply.
 
 ```lua
 require("anubis").setup({
@@ -67,9 +65,6 @@ require("anubis").setup({
     syntax = vim.diagnostic.severity.ERROR,     -- false to disable
     stray_text = vim.diagnostic.severity.WARN,  -- false to disable
   },
-  emphasis = {         -- bold/italic on top of your colorscheme; false to disable
-    ["@keyword.function"] = { bold = true },    -- full list in lua/anubis/init.lua
-  },
 })
 ```
 
@@ -81,13 +76,41 @@ the plugin:
 vim.opt_local.shiftwidth = 4
 ```
 
+## Colours
+
+Colours come from your colorscheme: the queries use the standard tree-sitter
+capture names (`@keyword`, `@type`, `@constructor`, `@function.call`, ...).
+
+A few captures are specific to Anubis and linked by default:
+
+| Group                          | Default link      |
+|--------------------------------|-------------------|
+| `@constructor.success.anubis`  | `DiagnosticOk`    |
+| `@constructor.failure.anubis`  | `DiagnosticError` |
+
+To change any of them, or any capture for Anubis buffers only (add `.anubis`
+to its name), use your colorscheme's override option, or:
+
+```lua
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    vim.api.nvim_set_hl(0, "@constructor.success.anubis", { fg = "#98c379", bold = true })
+    vim.api.nvim_set_hl(0, "@constructor.failure.anubis", { link = "ErrorMsg" })
+  end,
+})
+```
+
+That autocmd must be defined before your `:colorscheme` line, or followed
+by `vim.cmd.doautocmd("ColorScheme")`.
+
 ## Troubleshooting
 
 - `:lua =vim.api.nvim_get_runtime_file("parser/anubis.*", true)` must list only
   this plugin's parser: an older one elsewhere (e.g. in `~/.config/nvim/parser/`)
   would be used instead. Same for `queries/anubis/*`.
 - `:lua require("anubis").build()` recompiles the parser by hand.
-- `:InspectTree` shows the tree; `:Inspect` shows the capture under the cursor.
+- `:InspectTree` shows the tree; `:Inspect` shows the captures under the cursor
+  (the last one listed wins) and the group each one links to.
 
 ## Editing the queries
 

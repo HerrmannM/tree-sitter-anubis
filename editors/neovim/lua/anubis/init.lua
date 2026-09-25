@@ -1,6 +1,6 @@
 -- Anubis support for Neovim.
 --
---   require("anubis").setup(opts)   optional, call once at startup
+--   require("anubis").setup(opts)   optional: override the defaults below
 --   require("anubis").attach(buf)   called by ftplugin/anubis.lua
 --   require("anubis").build()       compile the parser now (normally automatic)
 --
@@ -8,16 +8,14 @@
 --   * tree-sitter highlighting (optional, if no other plugin starts it)
 --   * syntax diagnostics from the tree: ERROR nodes, MISSING tokens (e.g. a
 --     forgotten end dot), stray column-0 text outside paragraphs
---   * emphasis: bold / italic / undercurl added on top of the colorscheme
+--
+-- Colours belong to the colorscheme: the queries use standard capture names.
+-- The plugin only adds `default` links for its own captures (HIGHLIGHTS).
 
 local M = {}
 
 local S = vim.diagnostic.severity
 local ns = vim.api.nvim_create_namespace("anubis")
-
-local function hl_get(name)
-  return vim.api.nvim_get_hl(0, { name = name, link = false })
-end
 
 M.defaults = {
   -- Compile the parser automatically when it is missing or older than its
@@ -31,6 +29,7 @@ M.defaults = {
   dev = false,
 
   -- Fold each paragraph and each block of prose (files open unfolded).
+  -- Applied by ftplugin/anubis.lua.
   folding = false,
 
   -- Start tree-sitter highlighting in Anubis buffers. Set to false if another
@@ -41,20 +40,6 @@ M.defaults = {
     enabled = true,
     syntax = S.ERROR,       -- ERROR / MISSING nodes; false to disable
     stray_text = S.WARN,    -- column-0 text outside paragraphs; false to disable
-  },
-
-  -- capture -> attributes added on top of the colorscheme's colours
-  -- (or a function returning them). Set `emphasis = false` to disable all,
-  -- or one capture to false to skip it.
-  emphasis = {
-    ["@keyword.function"]    = { bold = true },    -- define, module
-    ["@keyword.type"]        = { bold = true },    -- type, type alias
-    ["@punctuation.special"] = { bold = true },    -- end dot
-    ["@type.parameter"]      = { italic = true },  -- $T
-    ["@keyword.operator"]    = { bold = true },    -- <-  <->  *x
-    ["@comment.warning"]     = function()          -- stray text
-      return { undercurl = true, sp = hl_get("DiagnosticWarn").fg }
-    end,
   },
 }
 
@@ -138,59 +123,37 @@ end
 
 
 -- --------------------------------------------------------------------------
--- Emphasis
+-- Highlights
 -- --------------------------------------------------------------------------
 
-local legacy = {
-  keyword = "Keyword", type = "Type", punctuation = "Delimiter",
-  comment = "Comment", operator = "Operator", ["function"] = "Function",
-  variable = "Identifier", string = "String", constructor = "Special",
+-- Captures specific to Anubis (queries-overlay/highlights.scm), linked to
+-- standard groups. `default = true`: a definition of the same group by the
+-- colorscheme or the user wins. Set again on ColorScheme (`:hi clear` drops them).
+local HIGHLIGHTS = {
+  ["@constructor.success.anubis"] = "DiagnosticOk",
+  ["@constructor.failure.anubis"] = "DiagnosticError",
 }
 
--- Resolve a capture like Neovim does (@a.b.c -> @a.b -> @a), then a legacy group.
-local function resolve(capture)
-  local name = capture
-  while name do
-    local hl = hl_get(name)
-    if next(hl) then return hl end
-    name = name:match("^(.*)%.[^.]+$")
-  end
-  return hl_get(legacy[capture:match("^@([^.]+)")] or "Normal")
-end
-
-local function apply_emphasis()
-  local em = M.config.emphasis
-  if not em then return end
-  for capture, attrs in pairs(em) do
-    if type(attrs) == "function" then attrs = attrs() end
-    if attrs then
-      -- `@x.anubis` overrides `@x` in Anubis buffers only
-      vim.api.nvim_set_hl(0, capture .. ".anubis",
-        vim.tbl_extend("force", resolve(capture), attrs))
-    end
+local function set_highlights()
+  for group, target in pairs(HIGHLIGHTS) do
+    vim.api.nvim_set_hl(0, group, { link = target, default = true })
   end
 end
 
-local emphasis_ready = false
-local function ensure_emphasis()
-  if emphasis_ready then return end
-  emphasis_ready = true
-  apply_emphasis()
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("anubis_emphasis", { clear = true }),
-    callback = apply_emphasis,
-  })
-end
+set_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("anubis_highlights", { clear = true }),
+  callback = set_highlights,
+})
 
 
 -- --------------------------------------------------------------------------
 -- Public API
 -- --------------------------------------------------------------------------
 
+-- The .anubis filetype is registered by ftdetect/anubis.lua, not here.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
-  vim.filetype.add({ extension = { anubis = "anubis" } })
-  if emphasis_ready then apply_emphasis() end
 end
 
 -- Repository root, from this file's real path:
@@ -285,8 +248,6 @@ function M.attach(buf)
   if M.config.highlight and not vim.treesitter.highlighter.active[buf] then
     vim.treesitter.start(buf, "anubis")
   end
-
-  ensure_emphasis()
 
   if M.config.diagnostics.enabled then
     parser:register_cbs({

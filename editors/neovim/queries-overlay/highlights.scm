@@ -10,11 +10,13 @@
 (stray_text) @nospell
 
 
-; --- Standard library (example, disabled) -----------------------------------
-; Name-based colours for library constructors. Uncomment to use, and define
-; the colours in lua/anubis/init.lua (emphasis) or your colorscheme.
-;
-; ((identifier) @constructor.success (#eq? @constructor.success "success"))
-; ((identifier) @constructor.failure (#eq? @constructor.failure "failure"))
-; ((identifier) @boolean (#any-of? @boolean "true" "false"))
+; --- Standard library -------------------------------------------------------
+; Name-based captures for well-known constructors. Without a colour of their
+; own, they fall back to @constructor. lua/anubis/init.lua links them to
+; DiagnosticOk / DiagnosticError by default; a colorscheme or the user can
+; override `@constructor.success.anubis` etc.
+
+((identifier) @constructor.success (#eq? @constructor.success "success"))
+((identifier) @constructor.failure (#eq? @constructor.failure "failure"))
+((identifier) @boolean (#any-of? @boolean "true" "false"))
 ; ((ty_name) @type.builtin (#any-of? @type.builtin "Maybe" "List" "Bool" "One"))
