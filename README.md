@@ -27,10 +27,6 @@ tree-sitter --version # Currently 0.26.11
 
 **Requirements:** [`tree-sitter-cli`](https://github.com/tree-sitter/tree-sitter) and a C compiler (`cc`/`gcc`/`clang`) on your `PATH`.
 
-```bash
-npm install -g tree-sitter-cli   # or: cargo install tree-sitter-cli
-```
-
 **1. Clone and build the parser:**
 ```bash
 git clone https://github.com/HerrmannM/tree-sitter-anubis
