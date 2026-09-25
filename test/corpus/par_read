@@ -6,9 +6,10 @@ read this_must_be_a_valid_path,_we_allow_any_nonwhite_until_the_end_of_line
 
 --------------------------------------------------------------------------------
 
-(anubis_source (par_read))
-
-
+(anubis_source
+  (par_read
+    (kw_read)
+    (path)))
 
 ================================================================================
 Transmit paragraph followed by out comment
@@ -21,6 +22,11 @@ transmit "string like allow whites" out_comment
 --------------------------------------------------------------------------------
 
 (anubis_source
-    (par_read) (out_comment)
-    (par_read) (out_comment)
-)
+  (par_read
+    (kw_read)
+    (path))
+  (out_comment)
+  (par_read
+    (kw_read)
+    (lit_string))
+  (out_comment))

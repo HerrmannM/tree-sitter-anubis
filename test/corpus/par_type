@@ -1,4 +1,3 @@
-
 ================================================================================
 Type alternatives without comma separator
 ================================================================================
@@ -10,15 +9,23 @@ type A($V):
   Some comment text here.
 
 --------------------------------------------------------------------------------
+
 (anubis_source
-    (par_type
-        (type_decl (ty_name) (ty_pname))
-        (par_type_alt (identifier) (par_type_alt_factor (type (ty_name)) (identifier)))
-        (par_type_alt (identifier))
-        (par_end)
-    )
-    (out_comment)
-)
+  (par_type
+    (kw_type)
+    (type_decl
+      (ty_name)
+      (ty_pname))
+    (par_type_alt
+      (identifier)
+      (par_type_alt_factor
+        (type
+          (ty_name))
+        (identifier)))
+    (par_type_alt
+      (identifier))
+    (par_end))
+  (out_comment))
 
 ================================================================================
 Type alternatives, multi-factor, with commas
@@ -33,19 +40,53 @@ type AlterResult($K, $V):
   Trailing prose after the paragraph.
 
 --------------------------------------------------------------------------------
+
 (anubis_source
-    (par_type
-        (type_decl (ty_name) (ty_pname) (ty_pname))
-        (par_type_alt (identifier))
-        (par_type_alt (identifier)
-            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier)))
-        (par_type_alt (identifier)
-            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier))
-            (par_type_alt_factor (type (ty_pname)) (identifier)))
-        (par_type_alt (identifier)
-            (par_type_alt_factor (type (ty_name) (type (ty_pname)) (type (ty_pname))) (identifier))
-            (par_type_alt_factor (type (ty_pname)) (identifier)))
-        (par_end)
-    )
-    (out_comment)
-)
+  (par_type
+    (kw_type)
+    (type_decl
+      (ty_name)
+      (ty_pname)
+      (ty_pname))
+    (par_type_alt
+      (identifier))
+    (par_type_alt
+      (identifier)
+      (par_type_alt_factor
+        (type
+          (ty_name)
+          (type
+            (ty_pname))
+          (type
+            (ty_pname)))
+        (identifier)))
+    (par_type_alt
+      (identifier)
+      (par_type_alt_factor
+        (type
+          (ty_name)
+          (type
+            (ty_pname))
+          (type
+            (ty_pname)))
+        (identifier))
+      (par_type_alt_factor
+        (type
+          (ty_pname))
+        (identifier)))
+    (par_type_alt
+      (identifier)
+      (par_type_alt_factor
+        (type
+          (ty_name)
+          (type
+            (ty_pname))
+          (type
+            (ty_pname)))
+        (identifier))
+      (par_type_alt_factor
+        (type
+          (ty_pname))
+        (identifier)))
+    (par_end))
+  (out_comment))
