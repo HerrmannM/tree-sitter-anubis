@@ -1,3 +1,7 @@
+# Built
+
+editors/neovim/parser/
+
 # Logs
 logs
 *.log
