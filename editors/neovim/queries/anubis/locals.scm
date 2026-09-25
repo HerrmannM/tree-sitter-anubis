@@ -24,37 +24,28 @@
 
 
 ; --- Definitions: pattern variables -----------------------------------------
-; `(_ pattern: ...)` matches both `case` and `conditional` (since / is not).
+; Patterns have their own nodes (pattern_*), so nesting depth is unlimited.
 ;
 ; A bare identifier as the WHOLE pattern (`nil then ...`) is a nullary
-; constructor, so it is deliberately not a definition. Identifiers in argument
-; positions are bindings. Queries cannot recurse, so nesting is covered to
-; depth 2, which handles the usual shapes. `_` binds nothing.
+; constructor, so it is deliberately not a definition: only identifiers
+; NESTED in a pattern are bindings. `_` binds nothing.
 
-; Constructor arguments: success(x), cons(h, t)
-((_ pattern: (term (apply arg: (term (identifier) @local.definition.var))))
+; Constructor arguments, list / tuple items, operator operands:
+;   success(x), cons(h, t), [h . t], (a, b), a + b, ~a
+((pattern_constructor (pattern (identifier) @local.definition.var))
  (#not-eq? @local.definition.var "_"))
-
-; One level of nesting: success(cons(h, t))
-((_ pattern: (term (apply arg: (term (apply arg: (term (identifier) @local.definition.var))))))
+((pattern_list (pattern (identifier) @local.definition.var))
  (#not-eq? @local.definition.var "_"))
-
-; List patterns: [h . t], [a, b], and inside a constructor: success([h . t])
-((_ pattern: (term (list (term (identifier) @local.definition.var))))
+((pattern_tuple (pattern (identifier) @local.definition.var))
  (#not-eq? @local.definition.var "_"))
-((_ pattern: (term (apply arg: (term (list (term (identifier) @local.definition.var))))))
+((pattern_binary (pattern (identifier) @local.definition.var))
+ (#not-eq? @local.definition.var "_"))
+((pattern_unary (pattern (identifier) @local.definition.var))
  (#not-eq? @local.definition.var "_"))
 
-; Tuple patterns: (a, b)
-((_ pattern: (term (tuple (term (identifier) @local.definition.var))))
- (#not-eq? @local.definition.var "_"))
-
-; Operator-shaped patterns, for types whose alternatives are operators: a + b, ~a
-((_ pattern: (term (binary_op left: (term (identifier) @local.definition.var))))
- (#not-eq? @local.definition.var "_"))
-((_ pattern: (term (binary_op right: (term (identifier) @local.definition.var))))
- (#not-eq? @local.definition.var "_"))
-((_ pattern: (term (unary_op rule: (term (identifier) @local.definition.var))))
+; Typed symbol: always a binding, even as the whole pattern
+;   error(Error_anubis150_parser er), since x is Int n, ...
+((typed_symbol name: (identifier) @local.definition.var)
  (#not-eq? @local.definition.var "_"))
 
 

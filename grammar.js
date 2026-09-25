@@ -1,4 +1,4 @@
-// Updated on 24/09/2026
+// Updated on 25/09/2026
 
 // --- --- --- Helpers --- --- ---
 // Type completion for tree sitter DSL like 'prec'
@@ -199,6 +199,14 @@ module.exports = grammar({
   ],
  
   word: $ => $._identifier,
+
+  // GLR conflicts (need more than one token of lookahead)
+  conflicts: $ => [
+    // Inside parentheses, in a pattern:  `(Int a, Int b)` is a tuple of typed
+    // symbols (pattern_tuple) while `(Int a, Int b) p` is a typed symbol whose
+    // type is a tuple. Only the token after `)` tells them apart.
+    [$.typed_symbol, $._types2, $._typesargs1],
+  ],
  
   // ORDER MUST MATCH `enum TokenType` in src/scanner.c
   externals: $ => [
@@ -330,16 +338,29 @@ module.exports = grammar({
  
  
     // --- --- --- TYPE
+
+    // type T: .                  (empty)
+    // type T: ...                (open, no alternatives yet)
+    // type T: a, b(X) .          (closed)
+    // type T: a, b(X), ...       (open; comma before `...` is optional)
     par_type: $ => seq(
       $.kw_type,
       $.type_decl, ":",
-      optional(seq(
-        $.par_type_alt,
-        repeat(seq(optional(","), $.par_type_alt))
-      )),
-      choice($.par_end, alias($._dotdotdot, $.par_end))
+      choice(
+        $.par_end,
+        alias($._dotdotdot, $.par_end),
+        seq(
+          $.par_type_alt,
+          repeat(seq(optional(","), $.par_type_alt)),
+          choice(
+            $.par_end,
+            seq(optional(","), alias($._dotdotdot, $.par_end))
+          )
+        )
+      )
     ),
- 
+
+
     par_type_alias: $ => seq(
       $.kw_type_alias,
       $.type_decl, "=", field('type', $.type), $.par_end
@@ -572,7 +593,7 @@ module.exports = grammar({
         choice(
           seq("then", $.term, "else", $.term),                                          // 1
           seq("is", choice(
-            seq("not", field("pattern", $.term), "then", $.term, "else", $.term),      // 2
+            seq("not", field("pattern", $.pattern), "then", $.term, "else", $.term),      // 2
             seq($.case, optional(seq("else", $.term))),                                // 3 & 4
             seq("{", repeat($.case), optional(seq("else", $.term)), "}"),              // 5 & 6
           )),
@@ -581,14 +602,61 @@ module.exports = grammar({
  
       PREC.comma(seq("since",                                                           // 7
         field("subject", $.term), "is",
-        field("pattern", $.term), ",",
+        field("pattern", $.pattern), ",",
         field("body", $.term)))
     )),
  
  
-    case: $ => PREC.comma(seq(field("pattern", $.term), "then", field("body", $.term), optional(","))),
+    case: $ => PREC.comma(seq(field("pattern", $.pattern), "then", field("body", $.term), optional(","))),
  
  
+
+    // --- --- --- PATTERN (grammar.y: Head / ResurSym / ListHead)
+    // Patterns are NOT terms: they appear only after `is`, `is not`, in `{ ... }`
+    // clauses and in `since ... is`. A ResurSym is either a nested Head or a
+    // typed symbol `Type sym` (e.g. `error(Error_anubis150_parser er)`).
+    // Deviation (permissive): the operator set is the term one (binary_tok) plus
+    // `->`; grammar.y has a slightly different list.
+    pattern: $ => choice(
+      $.identifier,
+      $.typed_symbol,
+      $.pattern_constructor,
+      $.pattern_list,
+      $.pattern_tuple,
+      $.pattern_binary,
+      $.pattern_unary,
+    ),
+
+    // ResurSym: Type sym
+    typed_symbol: $ => seq(field('type', $.type), field('name', $.identifier)),
+
+    // sym()  |  sym(ResurSym1)
+    pattern_constructor: $ => seq(
+      field('name', $.identifier),
+      sep0(field('arg', $.pattern), "(", ")", ",")
+    ),
+
+    // []  |  [a, b]  |  [h . t]  |  [a, b . t]   (cons dot is an end-dot)
+    pattern_list: $ => seq(
+      "[",
+      sep0($.pattern, null, null, ","),
+      optional(seq(alias($._enddot, $.cons_dot), $.pattern)),
+      "]"
+    ),
+
+    // (ResurSym2): at least two elements
+    pattern_tuple: $ => seq("(", $.pattern, repeat1(seq(",", $.pattern)), ")"),
+
+    // ResurSym <op> ResurSym, same precedences as terms
+    pattern_binary: $ => choice(
+      mkChoiceBinaryOp($, $.pattern, $.pattern),
+      PREC.arrow(seq(field('left', $.pattern), field('bop', $.arrow), field('right', $.pattern))),
+    ),
+
+    // ~ ResurSym
+    pattern_unary: $ => PREC.tilde(seq(field('uop', $.tilde), field('rule', $.pattern))),
+
+
     // Should not happen
     snh: $ => seq("should_not_happen", "(", $.term, optional(seq(",", $.term)), ")"),
  

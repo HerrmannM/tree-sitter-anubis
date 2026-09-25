@@ -157,11 +157,14 @@
 
 
 ; --- Patterns (constructors) ------------------------------------------------
+; Patterns have their own nodes (pattern_*), so nesting depth is unlimited.
+; A bare identifier as the WHOLE pattern (`nil then ...`) is a nullary
+; constructor; nested bare identifiers are bindings and keep @variable
+; (same rule as locals.scm).
 
-(case pattern: (term (identifier) @constructor))
-(case pattern: (term (apply fun: (term (identifier) @constructor))))
-(conditional pattern: (term (identifier) @constructor))
-(conditional pattern: (term (apply fun: (term (identifier) @constructor))))
+(pattern_constructor name: (identifier) @constructor)
+(case        pattern: (pattern (identifier) @constructor))
+(conditional pattern: (pattern (identifier) @constructor))
 
 
 ; --- Side effects on Var(T) -------------------------------------------------
