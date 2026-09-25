@@ -1,10 +1,5 @@
 [
   {
-    "type": "_",
-    "named": false,
-    "fields": {}
-  },
-  {
     "type": "adm_dest",
     "named": true,
     "fields": {},
@@ -610,11 +605,11 @@
         "required": true,
         "types": [
           {
-            "type": "_",
-            "named": false
+            "type": "type",
+            "named": true
           },
           {
-            "type": "type",
+            "type": "type_joker",
             "named": true
           }
         ]
@@ -1837,6 +1832,10 @@
   },
   {
     "type": "todo_line",
+    "named": true
+  },
+  {
+    "type": "type_joker",
     "named": true
   },
   {

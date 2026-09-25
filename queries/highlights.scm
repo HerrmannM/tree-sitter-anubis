@@ -52,7 +52,7 @@
 ["cross_recursive"] @keyword.function
 ["delegate" "checking every" "milliseconds, wait for"] @keyword.coroutine
 ["should_not_happen"] @keyword.exception
-["todo"] @comment.todo
+["todo"] @keyword.todo
 
 (builtin_kw) @function.builtin
 
@@ -85,18 +85,22 @@
 ; Lambda introducer `)|->` and `)|-name->`
 (mapsto) @keyword.function
 
+; opening '(' of the lambda, must be higher priority than bracket (default 100)
+(lambda "(" @keyword.function (#set! priority 110))
+
 
 ; --- Types --------------------------------------------------------------------
 
 (ty_name)  @type
 (ty_pname) @type.parameter            ; $T, $Elem
+(type_joker) @type.jocker
 
-((ty_name) @type.builtin
- (#any-of? @type.builtin
-   "Int" "Float" "String" "ByteArray" "Omega" "Covered"
-   "Var" "QueueIn" "QueueOut" "StructPtr" "Opaque"
-   "RStream" "WStream" "RWStream"
-   "FunctionFamily" "Listener"))
+;((ty_name) @type.builtin
+; (#any-of? @type.builtin
+;   "Int" "Float" "String" "ByteArray" "Omega" "Covered"
+;   "Var" "QueueIn" "QueueOut" "StructPtr" "Opaque"
+;   "RStream" "WStream" "RWStream"
+;   "FunctionFamily" "Listener"))
 
 
 ; --- Literals ---------------------------------------------------------------
@@ -134,7 +138,6 @@
 
 (operand arg: (identifier) @variable.parameter)
 (farg    arg: (identifier) @variable.parameter)
-(farg   type: "_" @variable.builtin)
 
 ; Names inside function / tuple types: (Int x, Int y) -> T
 (type name: (identifier) @variable.parameter)

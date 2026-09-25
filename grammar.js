@@ -529,9 +529,10 @@ module.exports = grammar({
  
     // FArg: Type sym | _ sym
     farg: $ => PREC.comma(seq(
-      field("type", choice($.type, alias($._jocker, '_'))),
+      field("type", choice($.type, alias("_", $.type_joker))),
       field("arg", $.identifier)
     )),
+
  
     // FArgs1: one or more, comma OPTIONAL between, none trailing
     fargs: $ => seq(

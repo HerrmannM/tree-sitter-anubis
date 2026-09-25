@@ -3476,11 +3476,11 @@
                 {
                   "type": "ALIAS",
                   "content": {
-                    "type": "SYMBOL",
-                    "name": "_jocker"
+                    "type": "STRING",
+                    "value": "_"
                   },
-                  "named": false,
-                  "value": "_"
+                  "named": true,
+                  "value": "type_joker"
                 }
               ]
             }

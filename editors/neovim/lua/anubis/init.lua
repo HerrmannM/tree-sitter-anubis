@@ -132,6 +132,9 @@ end
 local HIGHLIGHTS = {
   ["@constructor.success.anubis"] = "DiagnosticOk",
   ["@constructor.failure.anubis"] = "DiagnosticError",
+  ["@keyword.todo.anubis"] = "DiagnosticWarn",
+  ["@type.parameter.anubis"] = "TypeDef",
+  ["@type.jocker.anubis"] = "TypeDef",
 }
 
 local function set_highlights()

@@ -9,4 +9,8 @@
   (par_c_constructors)
   (out_comment)
   (apg2)
+  (conditional)
+  (lambda)
+  (with)
+  (list)
 ] @fold
