@@ -1,0 +1,20 @@
+; ============================================================================
+; tree-sitter-anubis -- injections
+;
+; MAML documentation lives in the comments of Anubis files. As for the MAML
+; compiler (which reads the whole file as text), all comments of a file are
+; ONE MAML document: a `$begin ... $acode(` before a paragraph and the `)$end`
+; after it belong together. Only $begin...$end parts are MAML; the rest of
+; the comments stays plain comment. The Anubis code itself is not part of it.
+;
+; Each piece takes the character that follows it (#offset!), a newline except
+; after a `*/` followed by code: MAML tokens stop at newlines, so no token
+; runs from one comment into the next, over the code in between (an injected
+; highlight is not clipped to the comment pieces).
+; One single pattern: combined injections are grouped by pattern.
+; ============================================================================
+
+([(out_comment) (comment) (block_comment)] @injection.content
+ (#offset! @injection.content 0 0 0 1)
+ (#set! injection.language "maml")
+ (#set! injection.combined))

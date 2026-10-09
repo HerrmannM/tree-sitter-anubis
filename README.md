@@ -74,6 +74,21 @@ tree-sitter test                          # run test/corpus/*.txt
 
 This is the fast loop — check the tree shape and corpus tests before ever opening Neovim.
 
+### The MAML grammar (`maml/`)
+
+A second grammar, for MAML (the documentation language of the Anubis library):
+`.maml` files, and MAML in the comments of Anubis files (`queries/injections.scm`).
+Same loop, from the `maml/` directory:
+
+```bash
+cd maml
+tree-sitter generate                      # regenerate maml/src/parser.c
+tree-sitter test                          # run maml/test/corpus/*.txt
+```
+
+Its highlight queries are `maml/queries/highlights.scm`; marks are coloured by
+name, from lists in that file.
+
 ### Iterating on highlighting (`queries/highlights.scm`) — no rebuild needed
 
 Symlink the queries folder into your Neovim config once, so edits are live immediately:

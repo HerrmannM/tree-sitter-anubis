@@ -1,11 +1,12 @@
 # Anubis for Neovim
 
 Highlighting, syntax diagnostics (errors, missing end dots), folding and
-spell checking for Anubis files.
+spell checking for Anubis files, and highlighting of their MAML documentation
+(also in `.maml` files).
 
-Requires Neovim 0.12 and a C compiler (`cc`, or `$CC`): the parser is compiled
-automatically the first time an `.anubis` file is opened, and again whenever
-its sources change.
+Requires Neovim 0.12 and a C compiler (`cc`, or `$CC`): the parsers (Anubis
+and MAML) are compiled automatically the first time an `.anubis` or `.maml`
+file is opened, and again whenever their sources change.
 
 ## Install
 
@@ -102,20 +103,37 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 That autocmd must be defined before your `:colorscheme` line, or followed
 by `vim.cmd.doautocmd("ColorScheme")`.
 
+## MAML
+
+MAML, the documentation language of the Anubis library, is highlighted:
+
+- in `.maml` files; the Anubis code in `$acode(...)` and `$adcode(...)` is
+  highlighted as Anubis;
+- in Anubis files, inside the comments (between paragraphs, `//` and `/* */`),
+  only between `$begin` and `$end`, as the MAML compiler reads them: all the
+  comments of a file form one MAML document, so a `$begin ... $acode(` before a
+  paragraph and its `)$end` after it belong together.
+
+Marks are coloured by name (`$section`, `$bold`, `$att`, ...). The lists of
+names are in `maml/queries/highlights.scm`: add a library macro there to give
+it a colour.
+
 ## Troubleshooting
 
 - `:lua =vim.api.nvim_get_runtime_file("parser/anubis.*", true)` must list only
   this plugin's parser: an older one elsewhere (e.g. in `~/.config/nvim/parser/`)
-  would be used instead. Same for `queries/anubis/*`.
-- `:lua require("anubis").build()` recompiles the parser by hand.
+  would be used instead. Same for `queries/anubis/*`, and for `maml`.
+- `:lua require("anubis").build()` recompiles the parsers by hand.
 - `:InspectTree` shows the tree; `:Inspect` shows the captures under the cursor
   (the last one listed wins) and the group each one links to.
 
 ## Editing the queries
 
 `editors/neovim/queries/anubis/` is generated from the repository's
-`queries/*.scm` plus the Neovim-only `editors/neovim/queries-overlay/`.
-Never edit it; after changing the queries, run from the repository root:
+`queries/*.scm` plus the Neovim-only `editors/neovim/queries-overlay/`, and
+`editors/neovim/queries/maml/` from `maml/queries/*.scm` plus
+`editors/neovim/queries-overlay-maml/`.
+Never edit them; after changing the queries, run from the repository root:
 
 ```sh
 node scripts/sync-queries.js

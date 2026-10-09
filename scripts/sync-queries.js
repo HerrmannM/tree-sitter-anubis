@@ -6,7 +6,7 @@
 //
 // For each target, every query file is:
 //
-//   header  +  queries/<name>.scm  +  <overlay>/<name>.scm
+//   header  +  <canonical>/<name>.scm  +  <overlay>/<name>.scm
 //
 // Either part may be missing (an overlay-only file, e.g. Neovim folds, is
 // allowed). The overlay comes LAST: in Neovim, later patterns win, so the
@@ -20,13 +20,21 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const CANONICAL = "queries";
 
+// One target per (editor, language).
 const TARGETS = [
   {
     name: "neovim",
+    canonical: "queries",
     out: "editors/neovim/queries/anubis",   // Neovim reads queries/<language>/
     overlay: "editors/neovim/queries-overlay",
+    transform: (text) => text,
+  },
+  {
+    name: "neovim (maml)",
+    canonical: "maml/queries",
+    out: "editors/neovim/queries/maml",
+    overlay: "editors/neovim/queries-overlay-maml",
     transform: (text) => text,
   },
   // Example for later:
@@ -57,12 +65,12 @@ function read(file) {
 
 // Returns { "<abs output path>": "<content>" } for one target.
 function generate(target) {
-  const names = new Set([...scmFiles(CANONICAL), ...scmFiles(target.overlay)]);
+  const names = new Set([...scmFiles(target.canonical), ...scmFiles(target.overlay)]);
   const out = {};
   for (const name of [...names].sort()) {
     const parts = [];
     const sources = [];
-    for (const dir of [CANONICAL, target.overlay]) {
+    for (const dir of [target.canonical, target.overlay]) {
       const file = path.join(ROOT, dir, name);
       if (fs.existsSync(file)) {
         sources.push(rel(file));

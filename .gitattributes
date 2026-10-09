@@ -4,6 +4,9 @@
 src/*.json linguist-generated
 src/parser.c linguist-generated
 src/tree_sitter/* linguist-generated
+maml/src/*.json linguist-generated
+maml/src/parser.c linguist-generated
+maml/src/tree_sitter/* linguist-generated
 
 # C bindings
 bindings/c/** linguist-generated

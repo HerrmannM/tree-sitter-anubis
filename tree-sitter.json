@@ -9,7 +9,21 @@
       "file-types": [ "anubis" ],
       "injection-regex": "^anubis$",
       "class-name": "TreeSitterAnubis",
-      "highlights": ["queries/highlights.scm"]
+      "highlights": ["queries/highlights.scm"],
+      "injections": ["queries/injections.scm"]
+    },
+    {
+      "name": "maml",
+      "camelcase": "Maml",
+      "title": "MAML",
+      "scope": "text.maml",
+      "path": "maml",
+      "file-types": [ "maml" ],
+      "injection-regex": "^maml$",
+      "highlights": ["maml/queries/highlights.scm"],
+      "injections": [],
+      "locals": [],
+      "tags": []
     }
   ],
   "metadata": {

@@ -1,0 +1,87 @@
+; ============================================================================
+; tree-sitter-maml -- highlight queries
+;
+; Every mark is the same node: (mark name: (mark_name) (operand)...).
+; What a mark MEANS comes from its name, listed below by category. To support
+; a new or renamed macro of the MAML/Anubis library, add its name to a list.
+;
+; Sources of the names:
+;   primitives    library/MAML4/maml4_types.anubis
+;   basis.maml    library/MAML4/basis.maml     ($section, $em, ...)
+;   anubis_doc    library/anubis_doc.maml      ($title, $acode, $att, ...)
+;
+; Later patterns win over earlier ones in Neovim.
+; Text outside $begin...$end (skip_text) is deliberately not captured: inside
+; an Anubis file it keeps the colour of the Anubis comment it belongs to.
+; ============================================================================
+
+
+; --- Base layer -------------------------------------------------------------
+
+(mark_name)    @function.macro
+["$begin" "$end"] @keyword.directive
+(line_comment) @comment
+(escape)       @string.escape
+(variable)     @variable.parameter
+(operand ["(" ")"] @punctuation.bracket)
+(verbatim ["(" ")"] @punctuation.bracket)
+(verbatim)     @markup.raw
+
+
+; --- Operand contents, by mark name -----------------------------------------
+; Only the text of the operand gets the capture, never the operand node: in
+; an Anubis file, an operand can span Anubis code (`$acode(` ... code ...
+; `)`), which must keep its own colours. Nested marks keep their own.
+
+; Headings
+((mark name: (mark_name) @_n (operand (text) @markup.heading))
+ (#any-of? @_n
+   "$title" "$subtitle" "$chapter"
+   "$section" "$subsection" "$subsubsection" "$subsubsubsection"))
+
+; Bold
+((mark name: (mark_name) @_n (operand (text) @markup.strong))
+ (#any-of? @_n "$bold"))
+
+; Italic, emphasis
+((mark name: (mark_name) @_n (operand (text) @markup.italic))
+ (#any-of? @_n "$italic" "$em"))
+
+; Code, file names. Not $acode / $adcode: in an Anubis file their content
+; is the Anubis code itself, in a .maml file it is injected as Anubis.
+((mark name: (mark_name) @_n (operand (text) @markup.raw))
+ (#any-of? @_n "$tt" "$code" "$wcode" "$ecode" "$att" "$lkw" "$mtt" "$fname"))
+
+; Links and references
+((mark name: (mark_name) @_n (operand (text) @markup.link))
+ (#any-of? @_n "$link" "$tlink" "$url" "$ref" "$refnote" "$pageref" "$popup"))
+
+((mark name: (mark_name) @_n (operand (text) @markup.link.label))
+ (#any-of? @_n "$label"))
+
+
+; --- Mark names, by category ------------------------------------------------
+
+; Definitions, conditionals, file and output control
+((mark_name) @keyword.directive
+ (#any-of? @keyword.directive
+   "$define" "$undefine" "$if" "$with" "$apply" "$eval" "$postpone"
+   "$input" "$inputverbatim" "$maybeinput" "$loadadm" "$compile"
+   "$output" "$closeoutput" "$exporthtml" "$execute" "$echo"
+   "$htmloptions" "$pdfoptions" "$latexmacros" "$noprimitive"
+   "$colorize" "$colorizer" "$colorrule" "$colorruleback"
+   "$colorizercall" "$colorizercallback" "$colorizerdontcall"
+   "$accumulator" "$append" "$pushcounter" "$popcounter" "$setcounter"
+   "$addtocounter"))
+
+; Lists
+((mark_name) @markup.list
+ (#any-of? @markup.list "$list" "$item"))
+
+; Layout breaks
+((mark_name) @punctuation.special
+ (#any-of? @punctuation.special "$par" "$nl" "$sp"))
+
+; Constants
+((mark_name) @boolean
+ (#any-of? @boolean "$true" "$false"))

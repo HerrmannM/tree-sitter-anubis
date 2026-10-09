@@ -1,11 +1,13 @@
--- Anubis support for Neovim.
+-- Anubis (and MAML) support for Neovim.
 --
 --   require("anubis").setup(opts)   optional: override the defaults below
---   require("anubis").attach(buf)   called by ftplugin/anubis.lua
---   require("anubis").build()       compile the parser now (normally automatic)
+--   require("anubis").attach(buf)   called by ftplugin/anubis.lua and ftplugin/maml.lua
+--   require("anubis").build()       compile the parsers now (normally automatic)
 --
 -- Features:
---   * tree-sitter highlighting (optional, if no other plugin starts it)
+--   * tree-sitter highlighting (optional, if no other plugin starts it), with
+--     MAML documentation highlighted inside Anubis comments
+--   * .maml files, with Anubis highlighted inside `$acode(...)` / `$adcode(...)`
 --   * syntax diagnostics from the tree: ERROR nodes, MISSING tokens (e.g. a
 --     forgotten end dot)
 --
@@ -141,10 +143,21 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 
 -- --------------------------------------------------------------------------
+-- Query predicates
+-- --------------------------------------------------------------------------
+
+-- `(#maml-file?)`: the buffer is a .maml file (not MAML injected into the
+-- comments of an Anubis file). Used by queries-overlay-maml/.
+vim.treesitter.query.add_predicate("maml-file?", function(_, _, source)
+  return type(source) == "number" and vim.bo[source].filetype == "maml"
+end, { force = true })
+
+
+-- --------------------------------------------------------------------------
 -- Public API
 -- --------------------------------------------------------------------------
 
--- The .anubis filetype is registered by ftdetect/anubis.lua, not here.
+-- The .anubis and .maml filetypes are registered by ftdetect/anubis.lua, not here.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
 end
@@ -157,9 +170,33 @@ local function repo_root()
   return vim.fn.fnamemodify(src, ":h:h:h:h:h")
 end
 
--- Compile the parser into editors/neovim/parser/ (see build.lua).
-function M.build()
-  return require("anubis.build")(repo_root())
+-- The two parsers of this repository. Both are always built: MAML is
+-- injected into Anubis comments, and Anubis into MAML `$acode(...)`.
+local PARSERS = {
+  anubis = {
+    grammar = "grammar.js",
+    sources = { "src/parser.c", "src/scanner.c" },
+    queries = { "highlights.scm", "locals.scm", "folds.scm", "injections.scm" },
+    canonical = "queries",
+    overlay = "editors/neovim/queries-overlay",
+  },
+  maml = {
+    grammar = "maml/grammar.js",
+    sources = { "maml/src/parser.c" },
+    queries = { "highlights.scm", "injections.scm" },
+    canonical = "maml/queries",
+    overlay = "editors/neovim/queries-overlay-maml",
+  },
+}
+
+-- Compile the parsers into editors/neovim/parser/ (see build.lua).
+-- `lang`: "anubis" or "maml"; nil builds both.
+function M.build(lang)
+  local build = require("anubis.build")
+  if lang then return build(repo_root(), lang) end
+  local ok = true
+  for name in pairs(PARSERS) do ok = build(repo_root(), name) and ok end
+  return ok
 end
 
 -- Modification time in seconds, or nil if the file does not exist.
@@ -179,21 +216,24 @@ local function older(target, sources)
   return false
 end
 
-local parser_loaded = false   -- the .so is loaded: a rebuild needs a restart
+local parser_loaded = false   -- a .so is loaded: a rebuild needs a restart
 
--- Rebuild the parser if needed. Runs before the parser is first loaded, so
--- the fresh one is used right away.
-local function ensure_parser()
+-- Rebuild the parsers if needed. Runs before they are first loaded, so the
+-- fresh ones are used right away.
+local function ensure_parsers()
   if not M.config.auto_build then return end
   local root = repo_root()
-  local so = root .. "/editors/neovim/parser/anubis.so"
-  if not older(so, { root .. "/src/parser.c", root .. "/src/scanner.c" }) then return end
-  if mtime(root .. "/src/parser.c") == nil then return end   -- nothing to build from
-
-  vim.notify("anubis: compiling the tree-sitter parser...", vim.log.levels.INFO)
-  vim.cmd.redraw()
-  if M.build() and parser_loaded then
-    vim.notify("anubis: parser rebuilt, restart Neovim to use it", vim.log.levels.WARN)
+  for lang, p in pairs(PARSERS) do
+    local so = root .. "/editors/neovim/parser/" .. lang .. ".so"
+    local sources = vim.tbl_map(function(f) return root .. "/" .. f end, p.sources)
+    -- Rebuild when outdated, and only if there is something to build from.
+    if older(so, sources) and mtime(sources[1]) ~= nil then
+      vim.notify(lang .. ": compiling the tree-sitter parser...", vim.log.levels.INFO)
+      vim.cmd.redraw()
+      if M.build(lang) and parser_loaded then
+        vim.notify(lang .. ": parser rebuilt, restart Neovim to use it", vim.log.levels.WARN)
+      end
+    end
   end
 end
 
@@ -203,14 +243,17 @@ local function dev_checks()
   dev_checked = true
   local root = repo_root()
   local msgs = {}
-  if older(root .. "/src/parser.c", { root .. "/grammar.js" }) then
-    msgs[#msgs + 1] = "grammar.js is newer than src/parser.c: run `tree-sitter generate`"
-  end
-  for _, name in ipairs({ "highlights.scm", "locals.scm", "folds.scm" }) do
-    local gen = root .. "/editors/neovim/queries/anubis/" .. name
-    if older(gen, { root .. "/queries/" .. name,
-                    root .. "/editors/neovim/queries-overlay/" .. name }) then
-      msgs[#msgs + 1] = name .. " changed: run `node scripts/sync-queries.js`"
+  for lang, p in pairs(PARSERS) do
+    if older(root .. "/" .. p.sources[1], { root .. "/" .. p.grammar }) then
+      msgs[#msgs + 1] = p.grammar .. " is newer than " .. p.sources[1]
+        .. ": run `tree-sitter generate`" .. (lang == "maml" and " in maml/" or "")
+    end
+    for _, name in ipairs(p.queries) do
+      local gen = root .. "/editors/neovim/queries/" .. lang .. "/" .. name
+      if older(gen, { root .. "/" .. p.canonical .. "/" .. name,
+                      root .. "/" .. p.overlay .. "/" .. name }) then
+        msgs[#msgs + 1] = lang .. "/" .. name .. " changed: run `node scripts/sync-queries.js`"
+      end
     end
   end
   if #msgs > 0 then
@@ -221,16 +264,18 @@ end
 -- Parsers already attached to (weak keys: a reloaded buffer gets a new parser).
 local attached = setmetatable({}, { __mode = "k" })
 
+-- Attach to an Anubis or a MAML buffer (language from the filetype).
 function M.attach(buf)
   if buf == nil or buf == 0 then buf = vim.api.nvim_get_current_buf() end
+  local lang = vim.bo[buf].filetype == "maml" and "maml" or "anubis"
 
   dev_checks()
-  ensure_parser()
+  ensure_parsers()
 
-  local ok, parser = pcall(vim.treesitter.get_parser, buf, "anubis")
+  local ok, parser = pcall(vim.treesitter.get_parser, buf, lang)
   if not ok or not parser then
-    vim.notify_once("anubis: tree-sitter parser not available"
-      .. " (needs src/parser.c and a C compiler, see editors/neovim/README.md)",
+    vim.notify_once(lang .. ": tree-sitter parser not available"
+      .. " (needs the generated parser.c and a C compiler, see editors/neovim/README.md)",
       vim.log.levels.WARN)
     return
   end
@@ -239,8 +284,10 @@ function M.attach(buf)
   attached[parser] = true
 
   if M.config.highlight and not vim.treesitter.highlighter.active[buf] then
-    vim.treesitter.start(buf, "anubis")
+    vim.treesitter.start(buf, lang)
   end
+
+  if lang ~= "anubis" then return end   -- the rest is Anubis only
 
   if M.config.diagnostics.enabled then
     parser:register_cbs({

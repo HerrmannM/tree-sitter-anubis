@@ -1,0 +1,175 @@
+================================================================================
+Operands must immediately follow the mark
+================================================================================
+
+$begin$MAML (the) $rgb(1,2,3)(red)$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (mark
+      (mark_name))
+    (text)
+    (text)
+    (text)
+    (text)
+    (text)
+    (mark
+      (mark_name)
+      (operand
+        (text))
+      (operand
+        (text))))
+  (skip_text))
+
+================================================================================
+Nested marks and balanced parentheses in operands
+================================================================================
+
+$begin$em(a $bold(b) (c))$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (mark
+      (mark_name)
+      (operand
+        (text)
+        (mark
+          (mark_name)
+          (operand
+            (text)))
+        (text)
+        (text)
+        (text)
+        (text))))
+  (skip_text))
+
+================================================================================
+Unbalanced parentheses outside operands are text
+================================================================================
+
+$begin 1) a ( b$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (text)
+    (text)
+    (text)
+    (text)
+    (text))
+  (skip_text))
+
+================================================================================
+Escapes, variables and line comments
+================================================================================
+
+$begin$$ $( $) $~ $1 $. $// comment
+$define(id)(1)($1)$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (escape)
+    (text)
+    (escape)
+    (text)
+    (escape)
+    (text)
+    (escape)
+    (text)
+    (variable)
+    (text)
+    (text)
+    (text)
+    (line_comment)
+    (mark
+      (mark_name)
+      (operand
+        (text))
+      (operand
+        (text))
+      (operand
+        (variable))))
+  (skip_text))
+
+================================================================================
+Verbatim operand: dollars are text, only parentheses matter
+================================================================================
+
+$begin$latex($\Box$ (a) $rpar)$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (mark
+      (mark_name)
+      (verbatim
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (escape))))
+  (skip_text))
+
+================================================================================
+Verbatim operand in second position
+================================================================================
+
+$begin$colorrule(maml)((#$)|(#$))($1)$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (mark
+      (mark_name)
+      (operand
+        (text))
+      (verbatim
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text)
+        (text))
+      (operand
+        (variable))))
+  (skip_text))
+
+================================================================================
+A longer name is not a verbatim primitive
+================================================================================
+
+$begin$latexeval($x)$end
+
+--------------------------------------------------------------------------------
+
+(document
+  (skip_text)
+  (region
+    (mark
+      (mark_name)
+      (operand
+        (mark
+          (mark_name)))))
+  (skip_text))

@@ -1,0 +1,17 @@
+; ============================================================================
+; Neovim-specific MAML injections.
+; ============================================================================
+
+; Anubis code in `$acode(...)` and `$adcode(...)` (library/anubis_doc.maml):
+; full paragraphs. Only in .maml files: in an Anubis file, this code is the
+; Anubis file itself, and the MAML document only holds its comments.
+; Other code marks ($att, $ecode, $wcode, $lkw) hold fragments, not paragraphs:
+; they are not injected (see maml/queries/highlights.scm for their colour).
+((mark
+   name: (mark_name) @_name
+   (operand) @injection.content)
+ (#any-of? @_name "$acode" "$adcode")
+ (#maml-file?)
+ (#offset! @injection.content 0 1 0 -1)
+ (#set! injection.language "anubis")
+ (#set! injection.include-children))
