@@ -216,8 +216,7 @@ module.exports = grammar({
     $._enddot,
     $.block_comment,
     // Outside paragraphs
-    $.out_comment,      // blank / indented lines: free text
-    $.stray_text,       // column-0 text that is not a paragraph keyword
+    $.out_comment,      // free text: indented lines, column-0 lines without keyword
     $.todo_line,        // ^to do: ...
     // Paragraph keywords: only ever produced at column 0
     $.kw_type,          // [Tt]ype | [Pp]ublic type
@@ -243,7 +242,6 @@ module.exports = grammar({
  
     _top_item: $ => choice(
       $.out_comment,
-      $.stray_text,
       $.todo_line,
       $.par_read,
       $.par_execute,

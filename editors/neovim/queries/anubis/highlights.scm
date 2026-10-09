@@ -25,7 +25,6 @@
 ; --- Text outside paragraphs ------------------------------------------------
 
 (out_comment) @comment.documentation   ; prose between paragraphs
-(stray_text)  @comment.warning         ; column-0 text that is NOT a paragraph
 (todo_line)   @comment.todo
 
 ; --- Comments inside paragraphs ---------------------------------------------
@@ -203,7 +202,6 @@
 ; Check the prose between paragraphs and comments, never code.
 
 [(out_comment) (comment) (block_comment) (todo_line)] @spell
-(stray_text) @nospell
 
 
 ; --- Standard library -------------------------------------------------------

@@ -7,7 +7,7 @@
 -- Features:
 --   * tree-sitter highlighting (optional, if no other plugin starts it)
 --   * syntax diagnostics from the tree: ERROR nodes, MISSING tokens (e.g. a
---     forgotten end dot), stray column-0 text outside paragraphs
+--     forgotten end dot)
 --
 -- Colours belong to the colorscheme: the queries use standard capture names.
 -- The plugin only adds `default` links for its own captures (HIGHLIGHTS).
@@ -41,7 +41,6 @@ M.defaults = {
   diagnostics = {
     enabled = true,
     syntax = S.ERROR,       -- ERROR / MISSING nodes; false to disable
-    stray_text = S.WARN,    -- column-0 text outside paragraphs; false to disable
   },
 }
 
@@ -79,19 +78,6 @@ local function collect_errors(node, severity, out, inside_error)
   end
 end
 
--- stray_text is valid syntax: it only appears at top level (or in an APG2 block).
-local function collect_stray(node, severity, out)
-  for child in node:iter_children() do
-    local t = child:type()
-    if t == "stray_text" then
-      out[#out + 1] = node_diag(child, severity,
-        "ignored: column-0 text that is not a paragraph keyword")
-    elseif t == "apg2" then
-      collect_stray(child, severity, out)
-    end
-  end
-end
-
 local function refresh(buf)
   if not vim.api.nvim_buf_is_valid(buf) then return end
   local ok, parser = pcall(vim.treesitter.get_parser, buf, "anubis")
@@ -102,7 +88,6 @@ local function refresh(buf)
   local root = tree:root()
   local cfg = M.config.diagnostics
   local out = {}
-  if cfg.stray_text then collect_stray(root, cfg.stray_text, out) end
   if cfg.syntax and root:has_error() then
     if root:type() == "ERROR" then
       out[#out + 1] = node_diag(root, cfg.syntax, "syntax error")

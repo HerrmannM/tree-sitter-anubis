@@ -60,10 +60,6 @@
           "named": true
         },
         {
-          "type": "stray_text",
-          "named": true
-        },
-        {
           "type": "todo_line",
           "named": true
         }
@@ -144,10 +140,6 @@
         },
         {
           "type": "par_type_alias",
-          "named": true
-        },
-        {
-          "type": "stray_text",
           "named": true
         },
         {
@@ -2091,10 +2083,6 @@
   },
   {
     "type": "star",
-    "named": true
-  },
-  {
-    "type": "stray_text",
     "named": true
   },
   {

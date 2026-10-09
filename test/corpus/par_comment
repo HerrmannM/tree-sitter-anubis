@@ -24,3 +24,76 @@ Out of paragraph comments
 --------------------------------------------------------------------------------
 
 (anubis_source (out_comment) )
+
+================================================================================
+Column 0 text that is not a keyword is a comment
+================================================================================
+
+Some title
+$id()define Foo
+Defined later: word boundary, not a keyword
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+  (out_comment)
+  (out_comment)
+  (out_comment))
+
+================================================================================
+Column 0 comment followed by indented lines
+================================================================================
+
+A title
+  indented prose
+
+  more prose
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+  (out_comment))
+
+================================================================================
+Column 0 comment between paragraphs
+================================================================================
+
+read a.anubis
+Some column 0 comment
+  and its indented continuation
+read b.anubis
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+  (par_read
+    (kw_read)
+    (path))
+  (out_comment)
+  (par_read
+    (kw_read)
+    (path)))
+
+================================================================================
+Column 0 non-keyword text inside an open paragraph is code
+================================================================================
+
+define Int a =
+1 + 2.
+
+--------------------------------------------------------------------------------
+
+(anubis_source
+  (par_def
+    (kw_define)
+    (type
+      (ty_name))
+    (identifier)
+    (term
+      (binary_op
+        (term
+          (lit_integer))
+        (plus)
+        (term
+          (lit_integer))))
+    (par_end)))

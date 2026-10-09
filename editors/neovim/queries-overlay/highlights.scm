@@ -7,7 +7,6 @@
 ; Check the prose between paragraphs and comments, never code.
 
 [(out_comment) (comment) (block_comment) (todo_line)] @spell
-(stray_text) @nospell
 
 
 ; --- Standard library -------------------------------------------------------

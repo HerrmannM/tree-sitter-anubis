@@ -8,8 +8,8 @@
 // character of lookahead):
 //
 //   1. Paragraph keywords, ONLY at column 0 (`define`, `public type alias`, ...)
-//   2. Text outside paragraphs: `out_comment` (indented/blank lines),
-//      `stray_text` (column-0 text that is not a keyword), `todo_line`.
+//   2. Text outside paragraphs: `out_comment` (indented lines, and column-0
+//      lines that do not start with a paragraph keyword), `todo_line`.
 //   3. Nestable block comments /* ... /* ... */ ... */.
 //   4. Dot disambiguation: `.` / `..` / `...` / end-dot.
 //
@@ -36,7 +36,6 @@ enum TokenType {
     ENDDOT,
     BLOCK_COMMENT,
     OUT_COMMENT,
-    STRAY_TEXT,
     TODO_LINE,
     KW_TYPE,
     KW_TYPE_ALIAS,
@@ -115,10 +114,10 @@ static int type_or_alias(TSLexer *l) {
 // Mirrors the `^`-anchored rules of lexer.l. As there, only the first letter
 // is case-insensitive. Deviations (deliberate):
 //   - a word boundary is required after each word (`Defined ...` at column 0
-//     is stray text, not `Define` + `d`);
+//     is a comment, not `Define` + `d`);
 //   - words are separated by blanks only, not newlines.
 // `Variable` and `Replaced by` are not recognised: the compiler rejects them,
-// so they show up as stray text.
+// so they show up as comments.
 static int match_keyword(TSLexer *l, bool top_level) {
     int32_t c = l->lookahead;
     switch (c) {
@@ -197,11 +196,12 @@ static int match_keyword(TSLexer *l, bool top_level) {
 }
 
 
-// --- --- --- Out-of-paragraph comment (lexer is on a non-blank char, column > 0)
+// --- --- --- Out-of-paragraph comment (lexer is on a non-blank char that does
+// not start a paragraph: column > 0, or column 0 but not a keyword)
 //
 // Swallows this line and every following line that is blank or indented.
-// Stops before the first column-0 non-blank character (keyword, stray text,
-// APG2 marker...). The token never includes the final newline, so the next
+// Stops before the first column-0 non-blank character (keyword, column-0
+// comment, APG2 marker...). The token never includes the final newline, so the next
 // scan sees the newline and knows it is at column 0 without get_column().
 static bool scan_out_comment(TSLexer *l) {
     bool more = true;
@@ -312,16 +312,13 @@ bool tree_sitter_anubis_external_scanner_scan(void *payload, TSLexer *l, const b
     // right after a paragraph (top level). Avoid get_column() in paragraphs.
     if (!skipped && top_level) col0 = (l->get_column(l) == 0);
 
-    // --- Column 0: paragraph keyword (forced, see header), stray text, APG2
+    // --- Column 0: paragraph keyword (forced, see header), APG2, or comment
     if (col0) {
         int kw = match_keyword(l, top_level);
         if (kw >= 0) { l->result_symbol = kw; return true; }
         if (top_level) {
             if (kw == KW_NOT_STARTED && l->lookahead == '#') return false;  // #APG2 ...
-            to_eol(l);
-            l->mark_end(l);
-            l->result_symbol = STRAY_TEXT;
-            return true;
+            return scan_out_comment(l);   // not a keyword: just a comment
         }
         if (kw == KW_FAILED) return false;  // consumed part of a word: let the main lexer redo it
         // KW_NOT_STARTED inside a paragraph: fall through ('.', '/', ...)

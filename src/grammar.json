@@ -48,10 +48,6 @@
         },
         {
           "type": "SYMBOL",
-          "name": "stray_text"
-        },
-        {
-          "type": "SYMBOL",
           "name": "todo_line"
         },
         {
@@ -5172,10 +5168,6 @@
     {
       "type": "SYMBOL",
       "name": "out_comment"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "stray_text"
     },
     {
       "type": "SYMBOL",

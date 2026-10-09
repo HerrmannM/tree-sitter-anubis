@@ -228,6 +228,7 @@ define A->A id = (_ a)|-f->a.
       (lambda
         (fargs
           (farg
+            (type_joker)
             (identifier)))
         (mapsto
           (identifier))

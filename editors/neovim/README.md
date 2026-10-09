@@ -1,7 +1,7 @@
 # Anubis for Neovim
 
-Highlighting, syntax diagnostics (errors, missing end dots, stray column-0
-text), folding and spell checking for Anubis files.
+Highlighting, syntax diagnostics (errors, missing end dots), folding and
+spell checking for Anubis files.
 
 Requires Neovim 0.12 and a C compiler (`cc`, or `$CC`): the parser is compiled
 automatically the first time an `.anubis` file is opened, and again whenever
@@ -63,7 +63,6 @@ require("anubis").setup({
   diagnostics = {
     enabled = true,
     syntax = vim.diagnostic.severity.ERROR,     -- false to disable
-    stray_text = vim.diagnostic.severity.WARN,  -- false to disable
   },
 })
 ```
