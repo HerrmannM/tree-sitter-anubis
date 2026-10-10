@@ -64,7 +64,8 @@ function read(file) {
   return fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n").replace(/\n*$/, "\n");
 }
 
-// Returns { "<abs output path>": "<content>" } for one target.
+// Returns { "<abs output path>": { content, sources: [<abs source path>...] } }
+// for one target.
 function generate(target) {
   const names = new Set([...scmFiles(target.canonical), ...scmFiles(target.overlay)]);
   const out = {};
@@ -80,7 +81,10 @@ function generate(target) {
         );
       }
     }
-    out[path.join(ROOT, target.out, name)] = HEADER(sources) + target.transform(parts.join(""));
+    out[path.join(ROOT, target.out, name)] = {
+      content: HEADER(sources) + target.transform(parts.join("")),
+      sources: sources.map((f) => path.join(ROOT, f)),
+    };
   }
   return out;
 }
@@ -104,9 +108,21 @@ for (const target of TARGETS) {
     }
   }
 
-  for (const [abs, content] of Object.entries(wanted)) {
+  for (const [abs, { content, sources }] of Object.entries(wanted)) {
     const current = fs.existsSync(abs) ? fs.readFileSync(abs, "utf8") : null;
-    if (current === content) continue;
+    if (current === content) {
+      // Up to date, but maybe older than its sources (e.g. after a checkout):
+      // refresh its time, which editors use to detect stale files.
+      if (!check) {
+        const newest = Math.max(...sources.map((f) => fs.statSync(f).mtimeMs));
+        if (fs.statSync(abs).mtimeMs < newest) {
+          const now = new Date();
+          fs.utimesSync(abs, now, now);
+          console.log(`touched  ${rel(abs)}`);
+        }
+      }
+      continue;
+    }
     if (check) {
       problems.push(`${current === null ? "missing:" : "outdated:"} ${rel(abs)}`);
     } else {

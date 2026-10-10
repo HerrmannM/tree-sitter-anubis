@@ -31,7 +31,8 @@ M.defaults = {
   -- Developer warnings: grammar.js newer than src/parser.c (run
   -- `node scripts/ts.js generate`), queries newer than their generated Neovim
   -- copies (run `node scripts/ts.js sync`). Off by default: based on file
-  -- times, which a fresh git checkout does not order meaningfully.
+  -- times, which a fresh git checkout does not order meaningfully (after a
+  -- checkout, `node scripts/ts.js sync` also refreshes the times).
   dev = false,
 
   -- Fold each paragraph and each block of prose (files open unfolded).

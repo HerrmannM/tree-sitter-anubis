@@ -59,7 +59,8 @@ Passed to `setup()`, which is optional: without it, the defaults apply.
 ```lua
 require("anubis").setup({
   auto_build = true,   -- compile the parser when missing or outdated
-  dev = false,         -- warn when generated files are stale (grammar work)
+  dev = false,         -- warn when generated files are stale (grammar work);
+                       -- after a checkout, `node scripts/ts.js sync` resets the times
   folding = false,     -- one fold per paragraph
   highlight = true,    -- start tree-sitter highlighting
   diagnostics = {
