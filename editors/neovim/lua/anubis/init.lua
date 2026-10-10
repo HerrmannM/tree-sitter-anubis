@@ -176,10 +176,10 @@ end
 -- into Anubis comments, Anubis into MAML `$acode(...)`, and both into APG2 and OpLang.
 local PARSERS = {
   anubis = {
-    grammar = "grammar.js",
-    sources = { "src/parser.c", "src/scanner.c" },
+    grammar = "anubis/grammar.js",
+    sources = { "anubis/src/parser.c", "anubis/src/scanner.c" },
     queries = { "highlights.scm", "locals.scm", "folds.scm", "injections.scm" },
-    canonical = "queries",
+    canonical = "anubis/queries",
     overlay = "editors/neovim/queries-overlay",
   },
   maml = {

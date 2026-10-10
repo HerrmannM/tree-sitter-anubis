@@ -8,9 +8,11 @@
       "scope": "source.anubis",
       "file-types": [ "anubis" ],
       "injection-regex": "^anubis$",
-      "class-name": "TreeSitterAnubis",
-      "highlights": ["queries/highlights.scm"],
-      "injections": ["queries/injections.scm"]
+      "path": "anubis",
+      "highlights": ["anubis/queries/highlights.scm"],
+      "injections": ["anubis/queries/injections.scm"],
+      "locals": ["anubis/queries/locals.scm"],
+      "tags": []
     },
     {
       "name": "maml",
@@ -68,12 +70,12 @@
     }
   },
   "bindings": {
-    "c": true,
+    "c": false,
     "go": false,
     "java": false,
-    "node": true,
+    "node": false,
     "python": false,
-    "rust": true,
+    "rust": false,
     "swift": false,
     "zig": false
   }

@@ -25,7 +25,7 @@ const ROOT = path.resolve(__dirname, "..");
 const TARGETS = [
   {
     name: "neovim",
-    canonical: "queries",
+    canonical: "anubis/queries",
     out: "editors/neovim/queries/anubis",   // Neovim reads queries/<language>/
     overlay: "editors/neovim/queries-overlay",
     transform: (text) => text,
