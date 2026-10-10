@@ -37,6 +37,19 @@
       "injections": ["apg2/queries/injections.scm"],
       "locals": [],
       "tags": []
+    },
+    {
+      "name": "oplang",
+      "camelcase": "Oplang",
+      "title": "OpLang",
+      "scope": "source.oplang",
+      "path": "oplang",
+      "file-types": [ "oplang" ],
+      "injection-regex": "^oplang$",
+      "highlights": ["oplang/queries/highlights.scm"],
+      "injections": ["oplang/queries/injections.scm"],
+      "locals": [],
+      "tags": []
     }
   ],
   "metadata": {

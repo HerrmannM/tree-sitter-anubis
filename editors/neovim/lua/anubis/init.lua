@@ -1,7 +1,7 @@
 -- Anubis (and MAML) support for Neovim.
 --
 --   require("anubis").setup(opts)   optional: override the defaults below
---   require("anubis").attach(buf)   called by ftplugin/{anubis,maml,apg2}.lua
+--   require("anubis").attach(buf)   called by ftplugin/{anubis,maml,apg2,oplang}.lua
 --   require("anubis").build()       compile the parsers now (normally automatic)
 --
 -- Features:
@@ -9,6 +9,7 @@
 --     MAML documentation highlighted inside Anubis comments
 --   * .maml files, with Anubis highlighted inside `$acode(...)` / `$adcode(...)`
 --   * .apg2 files (APG2 parser generator), with Anubis and MAML highlighted
+--   * .oplang files (OpLang), with Anubis and MAML highlighted
 --   * syntax diagnostics from the tree: ERROR nodes, MISSING tokens (e.g. a
 --     forgotten end dot)
 --
@@ -158,7 +159,7 @@ end, { force = true })
 -- Public API
 -- --------------------------------------------------------------------------
 
--- The .anubis, .maml and .apg2 filetypes are registered by ftdetect/anubis.lua, not here.
+-- The .anubis, .maml, .apg2 and .oplang filetypes are registered by ftdetect/anubis.lua, not here.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
 end
@@ -172,7 +173,7 @@ local function repo_root()
 end
 
 -- The parsers of this repository. All are always built: MAML is injected
--- into Anubis comments, Anubis into MAML `$acode(...)`, and both into APG2.
+-- into Anubis comments, Anubis into MAML `$acode(...)`, and both into APG2 and OpLang.
 local PARSERS = {
   anubis = {
     grammar = "grammar.js",
@@ -195,10 +196,17 @@ local PARSERS = {
     canonical = "apg2/queries",
     overlay = "editors/neovim/queries-overlay-apg2",
   },
+  oplang = {
+    grammar = "oplang/grammar.js",
+    sources = { "oplang/src/parser.c" },
+    queries = { "highlights.scm", "injections.scm" },
+    canonical = "oplang/queries",
+    overlay = "editors/neovim/queries-overlay-oplang",
+  },
 }
 
 -- Compile the parsers into editors/neovim/parser/ (see build.lua).
--- `lang`: "anubis", "maml" or "apg2"; nil builds all.
+-- `lang`: "anubis", "maml", "apg2" or "oplang"; nil builds all.
 function M.build(lang)
   local build = require("anubis.build")
   if lang then return build(repo_root(), lang) end

@@ -1,0 +1,31 @@
+; ============================================================================
+; tree-sitter-oplang -- highlight queries
+;
+; The preambule and postambule are injected as Anubis, and the whole file as
+; MAML (injections.scm). Later patterns win in Neovim.
+; ============================================================================
+
+(comment) @comment
+(line_comment) @comment
+
+; Leading keywords (column 0), and keywords within sentences
+(keyword) @keyword
+["where" "as" "with" "lazy" "reduce" "control" "no_type_of_error"] @keyword
+
+(read (path) @string.special.path)
+
+; Layers and metavariables; host (Anubis) types
+(layer) @type
+(host_type) @type.builtin
+
+; Operator names; a single lowercase letter is a variable
+(identifier) @function
+((identifier) @variable
+ (#match? @variable "^[a-z]$"))
+
+(defined_name) @function.macro
+(number) @number
+(string) @string
+
+["(" ")" "[" "]"] @punctuation.bracket
+[":" "," "/" "-" "."] @punctuation.delimiter

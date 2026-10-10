@@ -44,6 +44,13 @@ const TARGETS = [
     overlay: "editors/neovim/queries-overlay-apg2",
     transform: (text) => text,
   },
+  {
+    name: "neovim (oplang)",
+    canonical: "oplang/queries",
+    out: "editors/neovim/queries/oplang",
+    overlay: "editors/neovim/queries-overlay-oplang",
+    transform: (text) => text,
+  },
   // Example for later:
   // { name: "helix", out: "editors/helix/queries/anubis",
   //   overlay: "editors/helix/queries-overlay",

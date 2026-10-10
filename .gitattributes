@@ -10,6 +10,9 @@ maml/src/tree_sitter/* linguist-generated
 apg2/src/*.json linguist-generated
 apg2/src/parser.c linguist-generated
 apg2/src/tree_sitter/* linguist-generated
+oplang/src/*.json linguist-generated
+oplang/src/parser.c linguist-generated
+oplang/src/tree_sitter/* linguist-generated
 
 # C bindings
 bindings/c/** linguist-generated

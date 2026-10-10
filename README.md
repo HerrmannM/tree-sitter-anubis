@@ -95,6 +95,12 @@ A third grammar, for `.apg2` files (the APG2 parser generator). It injects
 Anubis into the code before and after the grammar, and MAML into the whole file
 (`apg2/queries/injections.scm`). Same loop, from the `apg2/` directory.
 
+### The OpLang grammar (`oplang/`)
+
+A fourth grammar, for `.oplang` files (OpLang operator languages). It injects
+Anubis into the preambule and the postambule, and MAML into the whole file
+(`oplang/queries/injections.scm`). Same loop, from the `oplang/` directory.
+
 ### Iterating on highlighting (`queries/highlights.scm`) — no rebuild needed
 
 Symlink the queries folder into your Neovim config once, so edits are live immediately:

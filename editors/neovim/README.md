@@ -2,11 +2,12 @@
 
 Highlighting, syntax diagnostics (errors, missing end dots), folding and
 spell checking for Anubis files, and highlighting of their MAML documentation
-(also in `.maml` files), and highlighting of `.apg2` files.
+(also in `.maml` files), and highlighting of `.apg2` and `.oplang` files.
 
 Requires Neovim 0.12 and a C compiler (`cc`, or `$CC`): the parsers (Anubis,
-MAML and APG2) are compiled automatically the first time an `.anubis`, `.maml`
-or `.apg2` file is opened, and again whenever their sources change.
+MAML, APG2 and OpLang) are compiled automatically the first time an
+`.anubis`, `.maml`, `.apg2` or `.oplang` file is opened, and again whenever
+their sources change.
 
 ## Install
 
@@ -124,11 +125,18 @@ it a colour.
 Anubis code before and after it (as Anubis), and the MAML documentation of the
 whole file (as the MAML compiler reads it).
 
+## OpLang
+
+`.oplang` files (OpLang operator languages) are highlighted: the sentences,
+the preambule and postambule (as Anubis), and the MAML documentation of the
+whole file (as the MAML compiler reads it).
+
 ## Troubleshooting
 
 - `:lua =vim.api.nvim_get_runtime_file("parser/anubis.*", true)` must list only
   this plugin's parser: an older one elsewhere (e.g. in `~/.config/nvim/parser/`)
-  would be used instead. Same for `queries/anubis/*`, and for `maml` and `apg2`.
+  would be used instead. Same for `queries/anubis/*`, and for `maml`, `apg2`
+  and `oplang`.
 - `:lua require("anubis").build()` recompiles the parsers by hand.
 - `:InspectTree` shows the tree; `:Inspect` shows the captures under the cursor
   (the last one listed wins) and the group each one links to.
@@ -138,8 +146,8 @@ whole file (as the MAML compiler reads it).
 `editors/neovim/queries/anubis/` is generated from the repository's
 `queries/*.scm` plus the Neovim-only `editors/neovim/queries-overlay/`, and
 `editors/neovim/queries/maml/` from `maml/queries/*.scm` plus
-`editors/neovim/queries-overlay-maml/`, and `editors/neovim/queries/apg2/`
-from `apg2/queries/*.scm`.
+`editors/neovim/queries-overlay-maml/`, and `editors/neovim/queries/{apg2,oplang}/`
+from `{apg2,oplang}/queries/*.scm`.
 Never edit them; after changing the queries, run from the repository root:
 
 ```sh

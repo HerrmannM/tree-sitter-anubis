@@ -1,0 +1,144 @@
+================================================================================
+Comments, preambule with MAML lines, end of preambule
+================================================================================
+   An OpLang program.
+preambule
+   $acode(
+public type T: t.
+   )
+end of preambule
+name Lambda.  trailing text
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (ambule
+    keyword: (keyword)
+    (anubis_block)
+    (keyword))
+  (comment)
+  (sentence
+    (keyword)
+    (layer))
+  (comment))
+
+================================================================================
+Missing end: the postambule runs to the end of the file
+================================================================================
+postambule
+define One f = unique.
+name X.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (ambule
+    keyword: (keyword)
+    (anubis_block)
+    (MISSING keyword)))
+
+================================================================================
+Multi-line sentences, keywords, comments
+================================================================================
+primitive Term lambda(Term x:T,E):func(T,U)   // a comment
+   where Type T, Type U, Term E[Term x:T]:U.
+definable++ Term String symbol(T):T where Type T.
+unify with lazy reduce f.
+oop Type   prim  -Primitive name
+           @definedtype -String n.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (sentence
+    (keyword)
+    (layer)
+    (identifier)
+    (layer)
+    (identifier)
+    (layer)
+    (layer)
+    (identifier)
+    (layer)
+    (layer)
+    (line_comment)
+    (layer)
+    (layer)
+    (layer)
+    (layer)
+    (layer)
+    (layer)
+    (layer)
+    (identifier)
+    (layer)
+    (layer))
+  (sentence
+    (keyword)
+    (layer)
+    (layer)
+    (identifier)
+    (layer)
+    (layer)
+    (layer)
+    (layer))
+  (sentence
+    (keyword)
+    (identifier))
+  (sentence
+    (keyword)
+    (layer)
+    (identifier)
+    (host_type)
+    (identifier)
+    (defined_name)
+    (host_type)
+    (identifier)))
+
+================================================================================
+A dot followed by a non blank does not end a sentence
+================================================================================
+rewrite f(x.y, 1.5, "a. b")  as x.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (sentence
+    (keyword)
+    (identifier)
+    (identifier)
+    (number)
+    (string)
+    (identifier)))
+
+================================================================================
+Read (older dialect), unknown word at column 0
+================================================================================
+read ../aux.anubis
+nothing to see.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (read
+    (keyword)
+    (path))
+  (comment))
+
+================================================================================
+Missing dot: the error stays in its sentence
+================================================================================
+primitive Type a
+name X.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (sentence
+    (keyword)
+    (layer)
+    (identifier)
+    (MISSING "."))
+  (sentence
+    (keyword)
+    (layer)))
