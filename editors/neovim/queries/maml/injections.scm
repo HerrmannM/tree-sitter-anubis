@@ -10,11 +10,16 @@
 ; Anubis file itself, and the MAML document only holds its comments.
 ; Other code marks ($att, $ecode, $wcode, $lkw) hold fragments, not paragraphs:
 ; they are not injected (see maml/queries/highlights.scm for their colour).
+; The #offset! drops the operand's parentheses. Only for a complete operand:
+; while typing, an unterminated one ends with a zero-width MISSING ")" (at
+; column 0 of the next line): offsetting that end gives column -1, which
+; makes Neovim's highlighter fail ("Range value out of bounds").
 ((mark
    name: (mark_name) @_name
    (operand) @injection.content)
  (#any-of? @_name "$acode" "$adcode")
  (#maml-file?)
+ (#lua-match? @injection.content "^%(.+%)$")
  (#offset! @injection.content 0 1 0 -1)
  (#set! injection.language "anubis")
  (#set! injection.include-children))
