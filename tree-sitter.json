@@ -24,6 +24,19 @@
       "injections": [],
       "locals": [],
       "tags": []
+    },
+    {
+      "name": "apg2",
+      "camelcase": "Apg2",
+      "title": "APG2",
+      "scope": "source.apg2",
+      "path": "apg2",
+      "file-types": [ "apg2" ],
+      "injection-regex": "^apg2$",
+      "highlights": ["apg2/queries/highlights.scm"],
+      "injections": ["apg2/queries/injections.scm"],
+      "locals": [],
+      "tags": []
     }
   ],
   "metadata": {

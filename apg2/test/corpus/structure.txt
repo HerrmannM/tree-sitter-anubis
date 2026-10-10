@@ -1,0 +1,76 @@
+================================================================================
+Prelude, Anubis blocks, grammar name and end marker
+================================================================================
+
+   A title: ignored text.
+#APG2
+read tools/basis.anubis
+#my_parser   rest is ignored
+type (Int) EXPR.
+#
+define Int x = 1.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (anubis_block)
+  (grammar_name)
+  (comment)
+  (declaration
+    (paren
+      (text))
+    (nonterminal))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Missing end marker: the grammar runs to the end
+================================================================================
+
+#APG2
+#p
+left plus.
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (declaration
+    (symbol)))
+
+================================================================================
+No #APG2: the whole file is prelude
+================================================================================
+
+Just text
+$begin $section(x) $end
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude))
+
+================================================================================
+#APG2 inside a MAML operand
+================================================================================
+
+   $apgcode(
+#APG2
+   )
+#p
+#
+   )
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (anubis_block)
+  (grammar_name)
+  (end_marker)
+  (anubis_block))

@@ -45,7 +45,6 @@ enum TokenType {
     KW_C_CONSTRUCTORS,
     KW_READ,
     KW_EXECUTE,
-    APG2_GUARD,      // never returned: marks "inside an APG2 block"
     ERROR_SENTINEL,  // never returned: valid only during error recovery
 };
 
@@ -201,7 +200,7 @@ static int match_keyword(TSLexer *l, bool top_level) {
 //
 // Swallows this line and every following line that is blank or indented.
 // Stops before the first column-0 non-blank character (keyword, column-0
-// comment, APG2 marker...). The token never includes the final newline, so the next
+// comment...). The token never includes the final newline, so the next
 // scan sees the newline and knows it is at column 0 without get_column().
 static bool scan_out_comment(TSLexer *l) {
     bool more = true;
@@ -295,8 +294,6 @@ void tree_sitter_anubis_external_scanner_deserialize(void *p, const char *b, uns
 bool tree_sitter_anubis_external_scanner_scan(void *payload, TSLexer *l, const bool *valid) {
     (void)payload;
     const bool recovery  = valid[ERROR_SENTINEL];
-    // Inside an APG2 block, lines are handled by grammar.js regexes.
-    if (!recovery && valid[APG2_GUARD]) return false;
     const bool top_level = !recovery && valid[OUT_COMMENT];
     const bool any_dot   = valid[DOT] || valid[DOTDOT] || valid[DOTDOTDOT] || valid[ENDDOT];
 
@@ -312,12 +309,11 @@ bool tree_sitter_anubis_external_scanner_scan(void *payload, TSLexer *l, const b
     // right after a paragraph (top level). Avoid get_column() in paragraphs.
     if (!skipped && top_level) col0 = (l->get_column(l) == 0);
 
-    // --- Column 0: paragraph keyword (forced, see header), APG2, or comment
+    // --- Column 0: paragraph keyword (forced, see header), or comment
     if (col0) {
         int kw = match_keyword(l, top_level);
         if (kw >= 0) { l->result_symbol = kw; return true; }
         if (top_level) {
-            if (kw == KW_NOT_STARTED && l->lookahead == '#') return false;  // #APG2 ...
             return scan_out_comment(l);   // not a keyword: just a comment
         }
         if (kw == KW_FAILED) return false;  // consumed part of a word: let the main lexer redo it

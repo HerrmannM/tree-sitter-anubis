@@ -89,6 +89,12 @@ tree-sitter test                          # run maml/test/corpus/*.txt
 Its highlight queries are `maml/queries/highlights.scm`; marks are coloured by
 name, from lists in that file.
 
+### The APG2 grammar (`apg2/`)
+
+A third grammar, for `.apg2` files (the APG2 parser generator). It injects
+Anubis into the code before and after the grammar, and MAML into the whole file
+(`apg2/queries/injections.scm`). Same loop, from the `apg2/` directory.
+
 ### Iterating on highlighting (`queries/highlights.scm`) — no rebuild needed
 
 Symlink the queries folder into your Neovim config once, so edits are live immediately:

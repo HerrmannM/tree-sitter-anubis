@@ -24,93 +24,6 @@
       "required": false,
       "types": [
         {
-          "type": "apg2",
-          "named": true
-        },
-        {
-          "type": "out_comment",
-          "named": true
-        },
-        {
-          "type": "par_c_constructors",
-          "named": true
-        },
-        {
-          "type": "par_def",
-          "named": true
-        },
-        {
-          "type": "par_describe",
-          "named": true
-        },
-        {
-          "type": "par_execute",
-          "named": true
-        },
-        {
-          "type": "par_read",
-          "named": true
-        },
-        {
-          "type": "par_type",
-          "named": true
-        },
-        {
-          "type": "par_type_alias",
-          "named": true
-        },
-        {
-          "type": "todo_line",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "apg2",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "apg2_ignore",
-          "named": true
-        },
-        {
-          "type": "apg2_lexer",
-          "named": true
-        },
-        {
-          "type": "apg2_macro",
-          "named": true
-        },
-        {
-          "type": "apg2_marker",
-          "named": true
-        },
-        {
-          "type": "apg2_name",
-          "named": true
-        },
-        {
-          "type": "apg2_other",
-          "named": true
-        },
-        {
-          "type": "apg2_prec",
-          "named": true
-        },
-        {
-          "type": "apg2_token",
-          "named": true
-        },
-        {
-          "type": "apg2_type",
-          "named": true
-        },
-        {
           "type": "out_comment",
           "named": true
         },
@@ -1869,42 +1782,6 @@
   },
   {
     "type": "ampersand",
-    "named": true
-  },
-  {
-    "type": "apg2_ignore",
-    "named": true
-  },
-  {
-    "type": "apg2_lexer",
-    "named": true
-  },
-  {
-    "type": "apg2_macro",
-    "named": true
-  },
-  {
-    "type": "apg2_marker",
-    "named": true
-  },
-  {
-    "type": "apg2_name",
-    "named": true
-  },
-  {
-    "type": "apg2_other",
-    "named": true
-  },
-  {
-    "type": "apg2_prec",
-    "named": true
-  },
-  {
-    "type": "apg2_token",
-    "named": true
-  },
-  {
-    "type": "apg2_type",
     "named": true
   },
   {

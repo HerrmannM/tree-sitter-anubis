@@ -1,0 +1,19 @@
+; ============================================================================
+; tree-sitter-apg2 -- injections
+; ============================================================================
+
+; The Anubis code before and after the grammar. Each block is injected on its
+; own (not combined): each is a sequence of whole paragraphs, and a combined
+; injection would let a multi-line Anubis comment at the end of the first
+; block cover the grammar in between.
+((anubis_block) @injection.content
+ (#set! injection.language "anubis"))
+
+; MAML documentation: the MAML compiler reads the whole file as text. Outside
+; $begin...$end nothing is captured, so a file without MAML is untouched.
+; The comments of the Anubis code also get MAML from the Anubis injections
+; (a partial document): without $begin it colours nothing, with one it
+; gives the same colours.
+((source_file) @injection.content
+ (#set! injection.language "maml")
+ (#set! injection.include-children))

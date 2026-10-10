@@ -228,17 +228,13 @@ module.exports = grammar({
     $.kw_read,          // [Rr]ead | [Tt]ransmit
     $.kw_execute,       // [Ee]xecute
     // Sentinels, never produced
-    $._apg2_guard,      // valid only inside an APG2 block
     $._error_sentinel,  // valid only during error recovery
   ],
  
   rules: {
  
     // --- --- --- Entry point
-    anubis_source: $ => seq(
-      repeat($._top_item),
-      optional(seq($.apg2, repeat($._top_item)))
-    ),
+    anubis_source: $ => repeat($._top_item),
  
     _top_item: $ => choice(
       $.out_comment,
@@ -250,25 +246,6 @@ module.exports = grammar({
       $.par_type_alias,
       $.par_describe,
       $.par_c_constructors,
-    ),
- 
-    apg2: $ => seq(
-      alias("#APG2", $.apg2_marker),
-      repeat($._top_item),
-      alias(/#[a-z_]\w+/, $.apg2_name),
-      repeat(choice(
-        alias(/\ntoken.*/,    $.apg2_token),
-        alias(/\nignore.*/,   $.apg2_ignore),
-        alias(/\nlexer.*/,    $.apg2_lexer),
-        alias(/\nleft.*/,     $.apg2_prec),
-        alias(/\nright.*/,    $.apg2_prec),
-        alias(/\ntype .*/,    $.apg2_type),
-        alias(/\n@.*/,        $.apg2_macro),
-        alias(/\n[a-zA-Z]+.*/, $.apg2_other),
-        alias(/\n.*/,         $.out_comment),
-        $._apg2_guard,
-      )),
-      alias("\n#", $.apg2_marker),
     ),
  
  

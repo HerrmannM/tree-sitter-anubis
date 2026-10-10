@@ -4,40 +4,11 @@
   "word": "_identifier",
   "rules": {
     "anubis_source": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_top_item"
-          }
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "apg2"
-                },
-                {
-                  "type": "REPEAT",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "_top_item"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        }
-      ]
+      "type": "REPEAT",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_top_item"
+      }
     },
     "_top_item": {
       "type": "CHOICE",
@@ -77,138 +48,6 @@
         {
           "type": "SYMBOL",
           "name": "par_c_constructors"
-        }
-      ]
-    },
-    "apg2": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "STRING",
-            "value": "#APG2"
-          },
-          "named": true,
-          "value": "apg2_marker"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_top_item"
-          }
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "PATTERN",
-            "value": "#[a-z_]\\w+"
-          },
-          "named": true,
-          "value": "apg2_name"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\ntoken.*"
-                },
-                "named": true,
-                "value": "apg2_token"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\nignore.*"
-                },
-                "named": true,
-                "value": "apg2_ignore"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\nlexer.*"
-                },
-                "named": true,
-                "value": "apg2_lexer"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\nleft.*"
-                },
-                "named": true,
-                "value": "apg2_prec"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\nright.*"
-                },
-                "named": true,
-                "value": "apg2_prec"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\ntype .*"
-                },
-                "named": true,
-                "value": "apg2_type"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\n@.*"
-                },
-                "named": true,
-                "value": "apg2_macro"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\n[a-zA-Z]+.*"
-                },
-                "named": true,
-                "value": "apg2_other"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "PATTERN",
-                  "value": "\\n.*"
-                },
-                "named": true,
-                "value": "out_comment"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_apg2_guard"
-              }
-            ]
-          }
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "STRING",
-            "value": "\n#"
-          },
-          "named": true,
-          "value": "apg2_marker"
         }
       ]
     },
@@ -5204,10 +5043,6 @@
     {
       "type": "SYMBOL",
       "name": "kw_execute"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_apg2_guard"
     },
     {
       "type": "SYMBOL",

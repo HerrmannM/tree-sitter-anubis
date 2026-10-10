@@ -37,6 +37,13 @@ const TARGETS = [
     overlay: "editors/neovim/queries-overlay-maml",
     transform: (text) => text,
   },
+  {
+    name: "neovim (apg2)",
+    canonical: "apg2/queries",
+    out: "editors/neovim/queries/apg2",
+    overlay: "editors/neovim/queries-overlay-apg2",
+    transform: (text) => text,
+  },
   // Example for later:
   // { name: "helix", out: "editors/helix/queries/anubis",
   //   overlay: "editors/helix/queries-overlay",

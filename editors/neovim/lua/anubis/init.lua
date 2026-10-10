@@ -1,13 +1,14 @@
 -- Anubis (and MAML) support for Neovim.
 --
 --   require("anubis").setup(opts)   optional: override the defaults below
---   require("anubis").attach(buf)   called by ftplugin/anubis.lua and ftplugin/maml.lua
+--   require("anubis").attach(buf)   called by ftplugin/{anubis,maml,apg2}.lua
 --   require("anubis").build()       compile the parsers now (normally automatic)
 --
 -- Features:
 --   * tree-sitter highlighting (optional, if no other plugin starts it), with
 --     MAML documentation highlighted inside Anubis comments
 --   * .maml files, with Anubis highlighted inside `$acode(...)` / `$adcode(...)`
+--   * .apg2 files (APG2 parser generator), with Anubis and MAML highlighted
 --   * syntax diagnostics from the tree: ERROR nodes, MISSING tokens (e.g. a
 --     forgotten end dot)
 --
@@ -157,7 +158,7 @@ end, { force = true })
 -- Public API
 -- --------------------------------------------------------------------------
 
--- The .anubis and .maml filetypes are registered by ftdetect/anubis.lua, not here.
+-- The .anubis, .maml and .apg2 filetypes are registered by ftdetect/anubis.lua, not here.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
 end
@@ -170,8 +171,8 @@ local function repo_root()
   return vim.fn.fnamemodify(src, ":h:h:h:h:h")
 end
 
--- The two parsers of this repository. Both are always built: MAML is
--- injected into Anubis comments, and Anubis into MAML `$acode(...)`.
+-- The parsers of this repository. All are always built: MAML is injected
+-- into Anubis comments, Anubis into MAML `$acode(...)`, and both into APG2.
 local PARSERS = {
   anubis = {
     grammar = "grammar.js",
@@ -187,10 +188,17 @@ local PARSERS = {
     canonical = "maml/queries",
     overlay = "editors/neovim/queries-overlay-maml",
   },
+  apg2 = {
+    grammar = "apg2/grammar.js",
+    sources = { "apg2/src/parser.c" },
+    queries = { "highlights.scm", "injections.scm" },
+    canonical = "apg2/queries",
+    overlay = "editors/neovim/queries-overlay-apg2",
+  },
 }
 
 -- Compile the parsers into editors/neovim/parser/ (see build.lua).
--- `lang`: "anubis" or "maml"; nil builds both.
+-- `lang`: "anubis", "maml" or "apg2"; nil builds all.
 function M.build(lang)
   local build = require("anubis.build")
   if lang then return build(repo_root(), lang) end
@@ -246,7 +254,7 @@ local function dev_checks()
   for lang, p in pairs(PARSERS) do
     if older(root .. "/" .. p.sources[1], { root .. "/" .. p.grammar }) then
       msgs[#msgs + 1] = p.grammar .. " is newer than " .. p.sources[1]
-        .. ": run `tree-sitter generate`" .. (lang == "maml" and " in maml/" or "")
+        .. ": run `tree-sitter generate`" .. (lang ~= "anubis" and " in " .. lang .. "/" or "")
     end
     for _, name in ipairs(p.queries) do
       local gen = root .. "/editors/neovim/queries/" .. lang .. "/" .. name
@@ -264,10 +272,11 @@ end
 -- Parsers already attached to (weak keys: a reloaded buffer gets a new parser).
 local attached = setmetatable({}, { __mode = "k" })
 
--- Attach to an Anubis or a MAML buffer (language from the filetype).
+-- Attach to a buffer of one of the PARSERS (language from the filetype).
 function M.attach(buf)
   if buf == nil or buf == 0 then buf = vim.api.nvim_get_current_buf() end
-  local lang = vim.bo[buf].filetype == "maml" and "maml" or "anubis"
+  local ft = vim.bo[buf].filetype
+  local lang = PARSERS[ft] and ft or "anubis"
 
   dev_checks()
   ensure_parsers()

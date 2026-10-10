@@ -179,18 +179,6 @@
 (par_execute command: (command) @string.special)
 (adm_dest (lit_string) @string.special.path)
 
-
-; --- APG2 blocks ------------------------------------------------------------
-
-[(apg2_marker) (apg2_name)] @keyword.directive
-(apg2_token)  @variable
-(apg2_ignore) @variable
-(apg2_prec)   @punctuation.delimiter
-(apg2_lexer)  @string
-(apg2_type)   @type
-(apg2_macro)  @function.macro
-(apg2_other)  @none
-
 ; ---- editors/neovim/queries-overlay/highlights.scm ----
 
 ; ============================================================================

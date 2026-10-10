@@ -1,0 +1,192 @@
+================================================================================
+Token declarations: regexp, type, value, escapes
+================================================================================
+
+#APG2
+#p
+token lpar   (#().
+token number ([0-9]+) (Int) (force_decimal_scan(#text)).
+token eol    (#n).     (end of line)
+ignore       (# ).
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (token_declaration
+    (symbol)
+    (paren
+      (escape)))
+  (token_declaration
+    (symbol)
+    (paren
+      (text))
+    (paren
+      (text))
+    (paren
+      (text)
+      (paren
+        (escape)
+        (text))))
+  (token_declaration
+    (symbol)
+    (paren
+      (escape)))
+  (comment)
+  (ignore_declaration
+    (paren
+      (escape)))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Declarations, macros, comments
+================================================================================
+
+#APG2
+#p
+lexer main.
+@w = ([# ]+).   (white spaces)
+   Indented text is a comment.
+$section(also a comment)
+apply m main.
+my_macro(a, b).
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (declaration
+    (symbol))
+  (macro_definition
+    (macro_name)
+    (paren
+      (text)
+      (escape)
+      (text)))
+  (comment)
+  (comment)
+  (comment)
+  (declaration
+    (symbol)
+    (symbol))
+  (expansion
+    (macro_name)
+    (paren
+      (text)))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Rules: multi-line, lexer switches, precedence, extra update
+================================================================================
+
+#APG2
+#p
+EXPR(x+y):  EXPR(x) plus
+            EXPR(y) [high].
+PRE@(extra[a <- []]):  [low].   // not mandatory
+ITEM(i):    lexer(p) -item symbol(n) dot -main.
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (rule
+    (nonterminal)
+    (paren
+      (text))
+    (nonterminal)
+    (paren
+      (text))
+    (symbol)
+    (nonterminal)
+    (paren
+      (text))
+    (precedence
+      (symbol)))
+  (rule
+    (nonterminal)
+    (paren
+      (text))
+    (precedence
+      (symbol)))
+  (comment)
+  (rule
+    (nonterminal)
+    (paren
+      (text))
+    (symbol)
+    (paren
+      (text))
+    (switch)
+    (symbol)
+    (paren
+      (text))
+    (symbol)
+    (switch))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Missing dot: the error stays in its item
+================================================================================
+
+#APG2
+#p
+token a (x)
+token b (y).
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (token_declaration
+    (symbol)
+    (paren
+      (text))
+    (MISSING "."))
+  (token_declaration
+    (symbol)
+    (paren
+      (text)))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Unbalanced parenthesis: the error stays in its item
+================================================================================
+
+#APG2
+#p
+token a (x.
+token b (y).
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (ERROR
+    (symbol)
+    (text))
+  (token_declaration
+    (symbol)
+    (paren
+      (text)))
+  (end_marker)
+  (anubis_block))
