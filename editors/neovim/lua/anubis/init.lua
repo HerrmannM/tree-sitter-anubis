@@ -1,7 +1,7 @@
--- Anubis (and MAML) support for Neovim.
+-- Anubis (and MAML, APG2, OpLang) support for Neovim.
 --
 --   require("anubis").setup(opts)   optional: override the defaults below
---   require("anubis").attach(buf)   called by ftplugin/{anubis,maml,apg2,oplang}.lua
+--   require("anubis").attach(buf)   called by the ftplugin/ of each grammar
 --   require("anubis").build()       compile the parsers now (normally automatic)
 --
 -- Features:
@@ -29,8 +29,8 @@ M.defaults = {
   auto_build = true,
 
   -- Developer warnings: grammar.js newer than src/parser.c (run
-  -- `tree-sitter generate`), queries newer than their generated Neovim copies
-  -- (run `node scripts/sync-queries.js`). Off by default: based on file
+  -- `node scripts/ts.js generate`), queries newer than their generated Neovim
+  -- copies (run `node scripts/ts.js sync`). Off by default: based on file
   -- times, which a fresh git checkout does not order meaningfully.
   dev = false,
 
@@ -117,7 +117,7 @@ end
 -- Highlights
 -- --------------------------------------------------------------------------
 
--- Captures specific to Anubis (queries-overlay/highlights.scm), linked to
+-- Captures specific to Anubis (overlays/anubis/highlights.scm), linked to
 -- standard groups. `default = true`: a definition of the same group by the
 -- colorscheme or the user wins. Set again on ColorScheme (`:hi clear` drops them).
 local HIGHLIGHTS = {
@@ -149,7 +149,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 -- --------------------------------------------------------------------------
 
 -- `(#maml-file?)`: the buffer is a .maml file (not MAML injected into the
--- comments of an Anubis file). Used by queries-overlay-maml/.
+-- comments of an Anubis file). Used by overlays/maml/.
 vim.treesitter.query.add_predicate("maml-file?", function(_, _, source)
   return type(source) == "number" and vim.bo[source].filetype == "maml"
 end, { force = true })
@@ -159,59 +159,23 @@ end, { force = true })
 -- Public API
 -- --------------------------------------------------------------------------
 
--- The .anubis, .maml, .apg2 and .oplang filetypes are registered by ftdetect/anubis.lua, not here.
+-- The filetypes are registered by ftdetect/anubis.lua, not here.
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), opts or {})
 end
 
--- Repository root, from this file's real path:
--- <root>/editors/neovim/lua/anubis/init.lua (symlinks resolved)
-local function repo_root()
-  local src = debug.getinfo(1, "S").source:sub(2)
-  src = vim.uv.fs_realpath(src) or src
-  return vim.fn.fnamemodify(src, ":h:h:h:h:h")
-end
-
--- The parsers of this repository. All are always built: MAML is injected
--- into Anubis comments, Anubis into MAML `$acode(...)`, and both into APG2 and OpLang.
-local PARSERS = {
-  anubis = {
-    grammar = "anubis/grammar.js",
-    sources = { "anubis/src/parser.c", "anubis/src/scanner.c" },
-    queries = { "highlights.scm", "locals.scm", "folds.scm", "injections.scm" },
-    canonical = "anubis/queries",
-    overlay = "editors/neovim/queries-overlay",
-  },
-  maml = {
-    grammar = "maml/grammar.js",
-    sources = { "maml/src/parser.c" },
-    queries = { "highlights.scm", "injections.scm" },
-    canonical = "maml/queries",
-    overlay = "editors/neovim/queries-overlay-maml",
-  },
-  apg2 = {
-    grammar = "apg2/grammar.js",
-    sources = { "apg2/src/parser.c" },
-    queries = { "highlights.scm", "injections.scm" },
-    canonical = "apg2/queries",
-    overlay = "editors/neovim/queries-overlay-apg2",
-  },
-  oplang = {
-    grammar = "oplang/grammar.js",
-    sources = { "oplang/src/parser.c" },
-    queries = { "highlights.scm", "injections.scm" },
-    canonical = "oplang/queries",
-    overlay = "editors/neovim/queries-overlay-oplang",
-  },
-}
+-- The grammars of this repository (tree-sitter.json). All their parsers are
+-- built: MAML is injected into Anubis comments, Anubis into MAML
+-- `$acode(...)`, and both into APG2 and OpLang.
+local grammars = require("anubis.grammars")
 
 -- Compile the parsers into editors/neovim/parser/ (see build.lua).
--- `lang`: "anubis", "maml", "apg2" or "oplang"; nil builds all.
+-- `lang`: a grammar name ("anubis", "maml", ...); nil builds all.
 function M.build(lang)
   local build = require("anubis.build")
-  if lang then return build(repo_root(), lang) end
+  if lang then return build(lang) end
   local ok = true
-  for name in pairs(PARSERS) do ok = build(repo_root(), name) and ok end
+  for _, g in ipairs(grammars.list) do ok = build(g.name) and ok end
   return ok
 end
 
@@ -238,10 +202,11 @@ local parser_loaded = false   -- a .so is loaded: a rebuild needs a restart
 -- fresh ones are used right away.
 local function ensure_parsers()
   if not M.config.auto_build then return end
-  local root = repo_root()
-  for lang, p in pairs(PARSERS) do
+  local root = grammars.root
+  for _, g in ipairs(grammars.list) do
+    local lang = g.name
     local so = root .. "/editors/neovim/parser/" .. lang .. ".so"
-    local sources = vim.tbl_map(function(f) return root .. "/" .. f end, p.sources)
+    local sources = vim.tbl_map(function(f) return root .. "/" .. f end, g.sources)
     -- Rebuild when outdated, and only if there is something to build from.
     if older(so, sources) and mtime(sources[1]) ~= nil then
       vim.notify(lang .. ": compiling the tree-sitter parser...", vim.log.levels.INFO)
@@ -257,18 +222,26 @@ local dev_checked = false
 local function dev_checks()
   if not M.config.dev or dev_checked then return end
   dev_checked = true
-  local root = repo_root()
+  local root = grammars.root
   local msgs = {}
-  for lang, p in pairs(PARSERS) do
-    if older(root .. "/" .. p.sources[1], { root .. "/" .. p.grammar }) then
-      msgs[#msgs + 1] = p.grammar .. " is newer than " .. p.sources[1]
-        .. ": run `tree-sitter generate`" .. (lang ~= "anubis" and " in " .. lang .. "/" or "")
+  for _, g in ipairs(grammars.list) do
+    local lang = g.name
+    if older(root .. "/" .. g.sources[1], { root .. "/" .. g.grammar }) then
+      msgs[#msgs + 1] = g.grammar .. " is newer than " .. g.sources[1]
+        .. ": run `node scripts/ts.js generate " .. lang .. "`"
     end
-    for _, name in ipairs(p.queries) do
+    -- Generated queries: one per canonical or overlay file.
+    local names = {}
+    for _, dir in ipairs({ g.queries, g.overlay }) do
+      for name, type in vim.fs.dir(root .. "/" .. dir) do
+        if type == "file" and name:match("%.scm$") then names[name] = true end
+      end
+    end
+    for name in pairs(names) do
       local gen = root .. "/editors/neovim/queries/" .. lang .. "/" .. name
-      if older(gen, { root .. "/" .. p.canonical .. "/" .. name,
-                      root .. "/" .. p.overlay .. "/" .. name }) then
-        msgs[#msgs + 1] = lang .. "/" .. name .. " changed: run `node scripts/sync-queries.js`"
+      if older(gen, { root .. "/" .. g.queries .. "/" .. name,
+                      root .. "/" .. g.overlay .. "/" .. name }) then
+        msgs[#msgs + 1] = lang .. "/" .. name .. " changed: run `node scripts/ts.js sync`"
       end
     end
   end
@@ -280,11 +253,11 @@ end
 -- Parsers already attached to (weak keys: a reloaded buffer gets a new parser).
 local attached = setmetatable({}, { __mode = "k" })
 
--- Attach to a buffer of one of the PARSERS (language from the filetype).
+-- Attach to a buffer of one of the grammars (language from the filetype).
 function M.attach(buf)
   if buf == nil or buf == 0 then buf = vim.api.nvim_get_current_buf() end
   local ft = vim.bo[buf].filetype
-  local lang = PARSERS[ft] and ft or "anubis"
+  local lang = grammars.by_name[ft] and ft or "anubis"
 
   dev_checks()
   ensure_parsers()

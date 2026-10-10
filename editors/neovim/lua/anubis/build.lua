@@ -1,17 +1,13 @@
 -- Compile a tree-sitter parser of this repository into
 -- editors/neovim/parser/<lang>.so, where Neovim finds it (editors/neovim is on
 -- 'runtimepath').
--- Needs a C compiler (`cc`, or $CC) and the generated <src>/parser.c.
---   lang: "anubis" (sources in src/), or "maml" / "apg2" / "oplang" (sources in <lang>/src/)
-local SOURCES = {
-  anubis = { "anubis/src/parser.c", "anubis/src/scanner.c" },
-  maml   = { "maml/src/parser.c" },
-  apg2   = { "apg2/src/parser.c" },
-  oplang = { "oplang/src/parser.c" },
-}
+-- Needs a C compiler (`cc`, or $CC) and the generated <grammar>/src/parser.c.
+--   lang: a grammar of tree-sitter.json (see grammars.lua)
+local grammars = require("anubis.grammars")
 
-return function(root, lang)
-  local sources = SOURCES[lang]
+return function(lang)
+  local root = grammars.root
+  local sources = grammars.by_name[lang].sources
   local out_dir = root .. "/editors/neovim/parser"
   local out = out_dir .. "/" .. lang .. ".so"
   local tmp = out .. ".tmp"
