@@ -132,6 +132,46 @@ whole file (as the MAML compiler reads it).
 the preambule and postambule (as Anubis), and the MAML documentation of the
 whole file (as the MAML compiler reads it).
 
+## Performance
+
+Holding a key or scrolling should stay fluid: on the largest files of the
+library and of A2S, every key is handled in under 7 ms (median 2 to 3 ms;
+without any plugin: about 1 ms), well below a key repeat (25 to 40 ms).
+
+What can happen:
+
+- **`~@k` (or similar) in the bottom right corner** while holding an arrow:
+  this is Neovim's `showcmd` showing a `<Down>` that is waiting to be handled,
+  when two key repeats arrive together. It happens without any plugin, even
+  on a plain text file, and does not mean Neovim is slow.
+- **Lag when holding a key or scrolling.** Each key costs, on top of Neovim
+  itself:
+  - highlighting the lines that come into view (only those: tree-sitter
+    parses once, then incrementally);
+  - **matchparen** (built in): on every cursor move, it asks tree-sitter for
+    the highlight at each parenthesis on screen, to skip those in strings and
+    comments. That is the most expensive part. Its time limit is
+    `vim.g.matchparen_timeout` (300 ms by default); `:NoMatchParen` turns it off;
+  - the injected languages: MAML in Anubis comments, Anubis in `.maml`
+    `$acode(...)`, Anubis and MAML in `.apg2` / `.oplang` files. Each one adds
+    a tree to query;
+  - `relativenumber`: the whole number column changes on every move, so more
+    is sent to the terminal; the terminal's own drawing speed then matters.
+- **Lag after an edit in a big file**: the injected MAML of a file is a single
+  document (as for the MAML compiler), parsed again as a whole after an edit.
+
+To measure, from the repository root (Python 3, standard library only):
+
+```sh
+python3 scripts/nvim-bench.py FILE                  # held <Down>, your config
+python3 scripts/nvim-bench.py FILE --key wheel      # mouse wheel
+python3 scripts/nvim-bench.py FILE -- -u NONE       # the same without config
+```
+
+It runs your real Neovim in a pseudo-terminal and prints the median, p95,
+p99 and max time per key. `:Inspect` and `:InspectTree` show the captures and
+the trees (one per injected language) under the cursor.
+
 ## Troubleshooting
 
 - `:lua =vim.api.nvim_get_runtime_file("parser/anubis.*", true)` must list only

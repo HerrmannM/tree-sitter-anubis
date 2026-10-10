@@ -59,6 +59,7 @@ node scripts/ts.js all      [grammar...]       # generate + test + sync
 node scripts/ts.js parse <dir> [grammar...]    # ERROR/MISSING counts on real files, e.g.
                                                #   node scripts/ts.js parse ~/anubis_dev/library
 node scripts/highlight-corpus.js <grammar> [filter]   # corpus inputs, coloured
+python3 scripts/nvim-bench.py <file>           # Neovim: time per held key (see Performance)
 ```
 
 Inside a grammar folder, the usual `tree-sitter generate`, `tree-sitter test`
@@ -80,3 +81,40 @@ Neovim recompiles a parser when its `src/` is newer; restart Neovim after a
 grammar change (a loaded parser cannot be replaced). Query changes only need
 `:e!`. In Neovim, `:InspectTree` and `:EditQuery <language>` help writing
 queries.
+
+## Performance (for grammar and query authors)
+
+In an editor, the cost is not parsing (once, then incremental) but running
+queries over the trees, on every redraw and, in Neovim, on every cursor move
+(matchparen asks for the captures at each parenthesis on screen, see
+[editors/neovim/README.md](editors/neovim/README.md#performance)). What
+makes queries slow, and what this repository does about it:
+
+- **Wide, flat nodes.** A query cursor walks the children of every node that
+  intersects the range it looks at; patterns with a parent step
+  (`(operand (text) @x)`) pay per child. Measured here: 0.01 ms per line for
+  `(text) @x`, 0.06 ms for `(operand (text) @x)` on a MAML tree with operands
+  of hundreds of children. ([Emacs profile of a slow highlight query](https://debbugs.gnu.org/db/60/60953.html):
+  the time goes to `goto_first_child` / `goto_next_sibling`.)
+- **Large error regions.** An ERROR node spanning the file makes every query
+  walk it ([Zed #52674](https://git.secluded.site/zed/commit/6cdf954e2ce0e1a6b83ce116b81258d3b512adf1),
+  [reverted](https://git.secluded.site/zed/commit/b38e8f17d863d3bc7a64d943ff5f5da9f83d5a8b)
+  as the range trick dropped valid matches). Keep errors local: the grammars
+  recover at column 0 (Anubis paragraphs, APG2 items, OpLang sentences never
+  continue on a non blank line at column 0), and OpLang parentheses are not
+  grouped.
+- **Big injections.** Every injected tree is queried too, and a combined
+  injection is one document, parsed again as a whole after an edit. Inject
+  the smallest content: APG2 and OpLang give MAML the documentation and the
+  Anubis code, not the grammar items / sentences (injecting the whole file
+  made matchparen take up to 150 ms per cursor move on a 900-line file; 22 ms
+  after). tree-sitter-markdown, for the same kind of reasons, parses the inline
+  content per paragraph in a separate grammar
+  ([tree-sitter-md](https://openapps.pro/packages/tree-sitter-md)).
+- **Predicates** run in the editor (Lua in Neovim): prefer `#any-of?` /
+  `#eq?` to regular expressions, and capture text nodes rather than big nodes
+  (the MAML queries capture `(text)` inside operands, never the operand).
+
+Measure before and after a change: `node scripts/ts.js parse <dir>` for
+correctness on real files, `python3 scripts/nvim-bench.py <file>` for the time
+per key in Neovim (compare with `-- -u NONE`).

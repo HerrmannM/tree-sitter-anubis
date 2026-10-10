@@ -12,6 +12,7 @@
 //                                                 MISSING nodes, and a total per grammar
 //
 // No grammar given: all of them.
+// Time per key in Neovim (held key, scrolling): python3 scripts/nvim-bench.py <file>
 
 "use strict";
 const fs = require("fs");
