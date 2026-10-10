@@ -1,9 +1,12 @@
 #!/usr/bin/env node
-// Show every corpus test input with syntax colours (no trees).
+// Show every corpus test input of a grammar with syntax colours (no trees).
 //
-//   node scripts/highlight-corpus.js                 all tests
-//   node scripts/highlight-corpus.js var             tests whose file or name matches /var/i
-//   node scripts/highlight-corpus.js var -- --grammar-path .   extra args for `tree-sitter highlight`
+//   node scripts/highlight-corpus.js anubis              all tests of anubis/test/corpus
+//   node scripts/highlight-corpus.js maml var            tests whose file or name matches /var/i
+//   node scripts/highlight-corpus.js anubis var -- -r    extra args for `tree-sitter highlight`
+//
+// Runs from the repository root, where tree-sitter.json tells the CLI which
+// grammar handles which file type.
 //
 // Pipe through `less -R` for long output. Tests whose input has ERROR or
 // MISSING nodes get a warning in their header.
@@ -12,14 +15,20 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
+const { ROOT, select } = require('./grammars');
 
 const argv = process.argv.slice(2);
 const dd = argv.indexOf('--');
 const own = dd >= 0 ? argv.slice(0, dd) : argv;
 const tsArgs = dd >= 0 ? argv.slice(dd + 1) : [];
-const filter = own[0] ? new RegExp(own[0], 'i') : null;
+if (!own[0]) {
+  console.error('usage: node scripts/highlight-corpus.js <grammar> [filter] [-- tree-sitter args]');
+  process.exit(2);
+}
+const [grammar] = select([own[0]]);
+const filter = own[1] ? new RegExp(own[1], 'i') : null;
 
-const CORPUS = 'test/corpus';
+const CORPUS = path.join(grammar.dir, 'test', 'corpus');
 const HEADER = /^={3,}\S*\s*$/;
 const DIVIDER = /^-{3,}\S*\s*$/;
 
@@ -51,7 +60,7 @@ function parseCorpus(text) {
 }
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'anubis-corpus-'));
-const file = path.join(tmp, 'case.anubis');
+const file = path.join(tmp, `case.${grammar.fileTypes[0]}`);
 const bold = s => `\x1b[1;36m${s}\x1b[0m`;
 const warn = s => `\x1b[1;31m${s}\x1b[0m`;
 let shown = 0;
@@ -63,11 +72,11 @@ try {
       if (filter && !filter.test(label)) continue;
       fs.writeFileSync(file, t.input);
 
-      const check = spawnSync('tree-sitter', ['parse', '--quiet', ...tsArgs, file], { encoding: 'utf8' });
+      const check = spawnSync('tree-sitter', ['parse', '--quiet', ...tsArgs, file], { cwd: ROOT, encoding: 'utf8' });
       const broken = check.status !== 0;
 
       console.log('\n' + bold(`── ${label} `.padEnd(78, '─')) + (broken ? '  ' + warn('⚠ parse errors') : ''));
-      const r = spawnSync('tree-sitter', ['highlight', ...tsArgs, file], { stdio: 'inherit' });
+      const r = spawnSync('tree-sitter', ['highlight', ...tsArgs, file], { cwd: ROOT, stdio: 'inherit' });
       if (r.error) { console.error(r.error.message); process.exit(1); }
       shown++;
     }
