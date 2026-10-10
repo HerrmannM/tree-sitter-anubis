@@ -1,133 +1,82 @@
 # tree-sitter-anubis
 
-A tree-sitter grammar for Anubis
+Tree-sitter grammars for Anubis and the languages around it:
 
+| Grammar | Folder | Files | Injects |
+|---|---|---|---|
+| Anubis | `anubis/` | `.anubis` | MAML into the comments |
+| MAML (documentation language of the library) | `maml/` | `.maml` | Anubis into `$acode(...)` / `$adcode(...)` (Neovim) |
+| APG2 (parser generator) | `apg2/` | `.apg2` | Anubis into the code before and after the grammar, MAML into the whole file |
+| OpLang (operator languages) | `oplang/` | `.oplang` | Anubis into the preambule and postambule, MAML into the whole file |
 
-# July 2026 migration to TS 0.26
+Each folder is a complete tree-sitter grammar: `grammar.js`, the generated
+`src/` (committed), `queries/` and `test/corpus/`. `tree-sitter.json` lists
+them; it is the only list of grammars: the scripts and the editor support
+read it.
 
-## Rust
+```
+anubis/ maml/ apg2/ oplang/   the grammars
+tree-sitter.json              the list of grammars (path, file types, queries)
+scripts/                      development commands (Node, no dependencies)
+editors/neovim/               Neovim support (see editors/neovim/README.md)
+```
+
+## Editors
+
+- **Neovim**: `editors/neovim/` is a plugin (parsers compiled automatically,
+  filetypes, diagnostics, MAML everywhere). See
+  [editors/neovim/README.md](editors/neovim/README.md).
+- **Other editors** (Helix, Zed, nvim-treesitter, ...) take a grammar as
+  "this repository + a sub-folder" (`anubis`, `maml`, `apg2`, `oplang`) and
+  compile its `src/parser.c` (+ `src/scanner.c` for Anubis). Their queries can
+  be generated like Neovim's: add the editor to `EDITORS` in
+  `scripts/sync-queries.js` (output folder, overlay folder, capture renaming).
+
+There are no language bindings (node, rust, C) for now: no consumer needs
+them. `tree-sitter init` regenerates them, for all the grammars, when one does.
+
+## Development
+
+**Prerequisites:** [`tree-sitter-cli`](https://github.com/tree-sitter/tree-sitter)
+0.26, Node.js (to run `grammar.js` and the scripts), a C compiler.
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 cargo install cargo-binstall
 cargo binstall tree-sitter-cli
-tree-sitter --version # Currently 0.26.11
+tree-sitter --version # Currently 0.26.x
 ```
 
-## Node
+All commands run from the repository root. Without a grammar name, they apply
+to all of them.
 
-- Updated package.json
-- then `npm install`
-
-
----
-
-# Using with Neomvim 0.12+ (no plugins required)
-
-
-**Requirements:** [`tree-sitter-cli`](https://github.com/tree-sitter/tree-sitter) and a C compiler (`cc`/`gcc`/`clang`) on your `PATH`.
-
-**1. Clone and build the parser:**
-```bash
-git clone https://github.com/HerrmannM/tree-sitter-anubis
-cd tree-sitter-anubis
-mkdir -p ~/.config/nvim/parser
-tree-sitter build --output ~/.config/nvim/parser/anubis.so
+```sh
+node scripts/ts.js generate [grammar...]       # <grammar>/src/ from <grammar>/grammar.js
+node scripts/ts.js test     [grammar...]       # <grammar>/test/corpus
+node scripts/ts.js sync                        # editor queries (editors/*/queries/)
+node scripts/ts.js check                       # editor queries up to date?
+node scripts/ts.js all      [grammar...]       # generate + test + sync
+node scripts/ts.js parse <dir> [grammar...]    # ERROR/MISSING counts on real files, e.g.
+                                               #   node scripts/ts.js parse ~/anubis_dev/library
+node scripts/highlight-corpus.js <grammar> [filter]   # corpus inputs, coloured
 ```
 
-**2. Install the highlight query:**
-```bash
-mkdir -p ~/.config/nvim/queries/anubis
-cp queries/highlights.scm ~/.config/nvim/queries/anubis/highlights.scm
-```
-
-**3. Register the `.anubis` filetype**, in your `init.lua` (~/.config/nvim/init.lua):
-```lua
-vim.filetype.add({ extension = { anubis = "anubis" } })
-```
-
-**4. Enable highlighting on that filetype**, also in `init.lua`:
-```lua
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'anubis',
-  callback = function() vim.treesitter.start() end,
-})
-```
-
-Open any `.anubis` file — it should now be highlighted. Run `:checkhealth vim.treesitter` if it isn't.
-
-**To update later:** pull the repo, re-run step 1 and step 2, then restart Neovim.
-
----
-
-## Development
-
-**Prerequisites:** `tree-sitter-cli`, a C compiler, and (only if you touch the respective bindings) Node.js for `binding.gyp` or a Rust toolchain for `Cargo.toml`.
-
-### Iterating on the grammar (`grammar.js`) — no Neovim needed
-
-```bash
-tree-sitter generate                      # regenerate src/parser.c from grammar.js
-tree-sitter parse test/some_file.anubis   # dump the parse tree as text
-tree-sitter test                          # run test/corpus/*.txt
-```
-
-This is the fast loop — check the tree shape and corpus tests before ever opening Neovim.
-
-### The MAML grammar (`maml/`)
-
-A second grammar, for MAML (the documentation language of the Anubis library):
-`.maml` files, and MAML in the comments of Anubis files (`queries/injections.scm`).
-Same loop, from the `maml/` directory:
-
-```bash
-cd maml
-tree-sitter generate                      # regenerate maml/src/parser.c
-tree-sitter test                          # run maml/test/corpus/*.txt
-```
-
-Its highlight queries are `maml/queries/highlights.scm`; marks are coloured by
-name, from lists in that file.
-
-### The APG2 grammar (`apg2/`)
-
-A third grammar, for `.apg2` files (the APG2 parser generator). It injects
-Anubis into the code before and after the grammar, and MAML into the whole file
-(`apg2/queries/injections.scm`). Same loop, from the `apg2/` directory.
-
-### The OpLang grammar (`oplang/`)
-
-A fourth grammar, for `.oplang` files (OpLang operator languages). It injects
-Anubis into the preambule and the postambule, and MAML into the whole file
-(`oplang/queries/injections.scm`). Same loop, from the `oplang/` directory.
-
-### Iterating on highlighting (`queries/highlights.scm`) — no rebuild needed
-
-Symlink the queries folder into your Neovim config once, so edits are live immediately:
-```bash
-mkdir -p ~/.config/nvim/queries
-ln -s /path/to/tree-sitter-anubis/queries ~/.config/nvim/queries/anubis
-```
-
-Then, inside Neovim on a `.anubis` buffer:
-- `:InspectTree` — live parse tree of the buffer, to find node names to query against
-- `:EditQuery anubis` — live query editor; matches highlight in the source buffer as you type, no save/restart needed
-
-Once a query works in `:EditQuery`, copy it into `queries/highlights.scm` — it's symlinked, so reopening the buffer (`:e!`) picks it up. No rebuild required for query-only changes.
-
-### After a grammar change — rebuilding for real end-to-end testing
-
-```bash
-tree-sitter generate
-tree-sitter build --output ~/.config/nvim/parser/anubis.so
-```
-Then **restart Neovim** — a loaded parser `.so` can't be hot-swapped mid-session; only a fresh `nvim` process picks up the rebuilt binary.
+Inside a grammar folder, the usual `tree-sitter generate`, `tree-sitter test`
+and `tree-sitter parse <file>` work too. `tree-sitter highlight <file>` must
+run from the root (where `tree-sitter.json` maps file types to grammars); for
+the same reason, highlight tests (`test/highlight/`) cannot be used in a
+grammar folder: `anubis/examples/` holds sample files instead.
 
 ### Quick reference
 
-| Change you want | Edit | Then run |
+| Change | Edit | Then run |
 |---|---|---|
-| Language syntax/rules | `grammar.js` | `tree-sitter generate`, `tree-sitter test` |
-| Highlighting only | `queries/highlights.scm` | nothing — reopen the buffer |
-| Both, tested live in Neovim | `grammar.js` + `queries/highlights.scm` | `tree-sitter generate`, `tree-sitter build --output ~/.config/nvim/parser/anubis.so`, restart Neovim |
+| Syntax of a language | `<grammar>/grammar.js` (+ `test/corpus/`) | `node scripts/ts.js all <grammar>` |
+| Colours, injections | `<grammar>/queries/*.scm` | `node scripts/ts.js sync` |
+| Neovim-only queries | `editors/neovim/overlays/<grammar>/*.scm` | `node scripts/ts.js sync` |
+| A new grammar | a new folder + its entry in `tree-sitter.json` (+ `editors/neovim/ftplugin/<filetype>.lua`) | `node scripts/ts.js all <grammar>` |
 
+Neovim recompiles a parser when its `src/` is newer; restart Neovim after a
+grammar change (a loaded parser cannot be replaced). Query changes only need
+`:e!`. In Neovim, `:InspectTree` and `:EditQuery <language>` help writing
+queries.

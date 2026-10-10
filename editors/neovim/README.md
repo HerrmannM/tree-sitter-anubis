@@ -46,7 +46,7 @@ end
 
 - From GitHub: `:lua vim.pack.update()` updates all your `vim.pack` plugins.
   Review the changes, `:write` to apply, then restart Neovim.
-- Local clone: `git pull` (or `tree-sitter generate` after editing the
+- Local clone: `git pull` (or `node scripts/ts.js generate` after editing a
   grammar), then restart Neovim.
 
 The parser is recompiled on the next start whenever it is older than its
@@ -143,13 +143,20 @@ whole file (as the MAML compiler reads it).
 
 ## Editing the queries
 
-`editors/neovim/queries/anubis/` is generated from the repository's
-`queries/*.scm` plus the Neovim-only `editors/neovim/queries-overlay/`, and
-`editors/neovim/queries/maml/` from `maml/queries/*.scm` plus
-`editors/neovim/queries-overlay-maml/`, and `editors/neovim/queries/{apg2,oplang}/`
-from `{apg2,oplang}/queries/*.scm`.
-Never edit them; after changing the queries, run from the repository root:
+`editors/neovim/queries/<grammar>/` is generated from the grammar's
+`<grammar>/queries/*.scm` plus the Neovim-only
+`editors/neovim/overlays/<grammar>/*.scm` (folds, MAML injections into
+`$acode`, ...). Never edit it; after changing the queries, run from the
+repository root:
 
 ```sh
-node scripts/sync-queries.js
+node scripts/ts.js sync
 ```
+
+## Grammars and paths
+
+The plugin reads the list of grammars from the repository's `tree-sitter.json`
+(`lua/anubis/grammars.lua`): their folders, the C files to compile into
+`editors/neovim/parser/<grammar>.so`, and their file extensions (each one a
+filetype, see `ftdetect/anubis.lua`). A new grammar needs no Lua change, only
+an `ftplugin/<filetype>.lua` that calls `require("anubis").attach(0)`.
