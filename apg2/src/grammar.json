@@ -416,7 +416,7 @@
     },
     "macro_name": {
       "type": "PATTERN",
-      "value": "@[A-Za-z_][A-Za-z0-9_]*"
+      "value": "@[A-Za-z0-9_]+"
     },
     "switch": {
       "type": "PATTERN",
@@ -478,6 +478,10 @@
                 "name": "escape"
               },
               {
+                "type": "SYMBOL",
+                "name": "variable"
+              },
+              {
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
@@ -507,6 +511,27 @@
     "escape": {
       "type": "PATTERN",
       "value": "#[^\\n]"
+    },
+    "variable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "#text"
+        },
+        {
+          "type": "STRING",
+          "value": "#line"
+        },
+        {
+          "type": "STRING",
+          "value": "#col"
+        },
+        {
+          "type": "STRING",
+          "value": "#extra"
+        }
+      ]
     },
     "_space": {
       "type": "PATTERN",

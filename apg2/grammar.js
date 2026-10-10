@@ -26,8 +26,9 @@
 // then stays an error local to its item.
 //
 // Parenthesized expressions `(...)` are balanced, `#x` escapes a character
-// (`(#().` is the regexp of a `(`). Their content is not analysed: regexps,
-// Anubis types and Anubis expressions.
+// (`(#().` is the regexp of a `(`), and `#text #line #col #extra` are the
+// variables of the semantic values. Their content is not analysed otherwise:
+// regexps, Anubis types and Anubis expressions.
 
 /// <reference types="tree-sitter-cli/dsl" />
 
@@ -106,7 +107,7 @@ module.exports = grammar({
 
     symbol: $ => /[a-z][A-Za-z0-9_]*/,
     nonterminal: $ => /[A-Z][A-Za-z0-9_]*/,
-    macro_name: $ => /@[A-Za-z_][A-Za-z0-9_]*/,
+    macro_name: $ => /@[A-Za-z0-9_]+/,      // @w, @8
     switch: $ => /-[a-z][A-Za-z0-9_]*/,       // change of lexer: -main
     precedence: $ => seq('[', repeat($._space), $.symbol, repeat($._space), ']'),
 
@@ -114,10 +115,13 @@ module.exports = grammar({
       $._newline,
       $.paren,
       $.escape,
+      $.variable,
       alias(/[^()#\n]+/, $.text),
       alias('#', $.text),
     )), ')'),
     escape: $ => /#[^\n]/,
+    // Longer than an escape: wins over `#t`.
+    variable: $ => choice('#text', '#line', '#col', '#extra'),
 
     _space: $ => /[ \t\r]+/,
     // A line break within an item: the next non blank line is indented.

@@ -29,8 +29,7 @@ ignore       (# ).
     (paren
       (text)
       (paren
-        (escape)
-        (text))))
+        (variable))))
   (token_declaration
     (symbol)
     (paren
@@ -188,5 +187,47 @@ token b (y).
     (symbol)
     (paren
       (text)))
+  (end_marker)
+  (anubis_block))
+
+================================================================================
+Semantic values: #text #line #col #extra are variables, #x an escape
+================================================================================
+
+#APG2
+#p
+@8 = (first_char(#text)).
+token num (#n[0-9]+) (Int) (f(#text,#line,#col,#extra)).
+#
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (prelude)
+  (apg2_marker)
+  (grammar_name)
+  (macro_definition
+    (macro_name)
+    (paren
+      (text)
+      (paren
+        (variable))))
+  (token_declaration
+    (symbol)
+    (paren
+      (escape)
+      (text))
+    (paren
+      (text))
+    (paren
+      (text)
+      (paren
+        (variable)
+        (text)
+        (variable)
+        (text)
+        (variable)
+        (text)
+        (variable))))
   (end_marker)
   (anubis_block))

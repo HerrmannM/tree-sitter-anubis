@@ -203,6 +203,10 @@
         {
           "type": "text",
           "named": true
+        },
+        {
+          "type": "variable",
+          "named": true
         }
       ]
     }
@@ -350,11 +354,32 @@
     }
   },
   {
+    "type": "variable",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "\n",
     "named": false
   },
   {
     "type": "#",
+    "named": false
+  },
+  {
+    "type": "#col",
+    "named": false
+  },
+  {
+    "type": "#extra",
+    "named": false
+  },
+  {
+    "type": "#line",
+    "named": false
+  },
+  {
+    "type": "#text",
     "named": false
   },
   {

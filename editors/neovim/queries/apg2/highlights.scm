@@ -39,6 +39,7 @@
 (token_declaration . (symbol) . (paren) @string.regexp)
 (ignore_declaration . (paren) @string.regexp)
 (escape) @string.escape
+(variable) @variable.builtin
 
 ; --- Punctuation ------------------------------------------------------------
 
